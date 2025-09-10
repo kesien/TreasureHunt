@@ -17,6 +17,8 @@ public class EventEntity
     public EventStatus Status { get; set; }
 
     public bool AllowTeamTracking { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
 
     // Navigation properties
     public ICollection<TeamEntity> Teams { get; set; } = new List<TeamEntity>();

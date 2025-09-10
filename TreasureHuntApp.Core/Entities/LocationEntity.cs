@@ -18,6 +18,10 @@ public class LocationEntity
 
     public int EventId { get; set; }
     public EventEntity Event { get; set; } = null!;
+    public string Description { get; set; } = string.Empty; // Add if missing
+    public int Order { get; set; } // Add if missing - for ordering locations
+    public bool IsRequired { get; set; } = true; // Add if missing
+    public ICollection<PhotoEntity> Photos { get; set; } = [];
 
     // Navigation properties
     public ICollection<VisitEntity> Visits { get; set; } = new List<VisitEntity>();

@@ -16,7 +16,7 @@ public class RoutingService(HttpClient httpClient, IConfiguration configuration,
             var baseUrl = GetOsrmUrl(request.TransportMode);
             var profile = GetProfile(request.TransportMode);
 
-            var url = $"{baseUrl}/route/v1/{profile}/{request.StartLongitude},{request.StartLatitude};{request.EndLongitude},{request.EndLatitude}?overview=full&geometries=geojson&steps=true";
+            var url = $"{baseUrl}/route/v1/{profile}/{request.StartLongitude.ToString(CultureInfo.InvariantCulture)},{request.StartLatitude.ToString(CultureInfo.InvariantCulture)};{request.EndLongitude.ToString(CultureInfo.InvariantCulture)},{request.EndLatitude.ToString(CultureInfo.InvariantCulture)}?overview=full&geometries=geojson&steps=true";
 
             logger.LogInformation("OSRM Request: {Url}", url);
             logger.LogInformation("Coordinates: Start({StartLon},{StartLat}) End({EndLon},{EndLat})",

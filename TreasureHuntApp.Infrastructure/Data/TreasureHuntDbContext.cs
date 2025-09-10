@@ -11,6 +11,7 @@ public class TreasureHuntDbContext(DbContextOptions<TreasureHuntDbContext> optio
     public DbSet<LocationEntity> Locations { get; set; }
     public DbSet<VisitEntity> Visits { get; set; }
     public DbSet<PhotoEntity> Photos { get; set; }
+    public DbSet<TeamSessionEntity> TeamSessions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -39,6 +40,19 @@ public class TreasureHuntDbContext(DbContextOptions<TreasureHuntDbContext> optio
 
     private static void ConfigureTeams(ModelBuilder builder)
     {
+        builder.Entity<TeamSessionEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SessionToken).HasMaxLength(50).IsRequired();
+            entity.HasIndex(e => e.SessionToken).IsUnique();
+            entity.Property(e => e.IsActive).IsRequired();
+
+            entity.HasOne(e => e.Team)
+                .WithMany(t => t.Sessions)
+                .HasForeignKey(e => e.TeamId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
         builder.Entity<TeamEntity>(entity =>
         {
             entity.HasKey(t => t.Id);

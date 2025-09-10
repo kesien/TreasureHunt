@@ -12,6 +12,7 @@ public class TeamEntity
     [Required]
     [MaxLength(10)]
     public string AccessCode { get; set; } = string.Empty;
+    public List<TeamSessionEntity> Sessions { get; set; } = new();
 
     public int EventId { get; set; }
     public EventEntity Event { get; set; } = null!;

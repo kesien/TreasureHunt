@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Globalization;
 using System.Text;
 using System.Text.Json.Serialization;
+using TreasureHuntApp.API.Services;
 using TreasureHuntApp.Core.Entities;
 using TreasureHuntApp.Infrastructure.Data;
 using TreasureHuntApp.Infrastructure.Services;
@@ -17,6 +18,11 @@ CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IRoutingService, RoutingService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<ITeamCodeGenerator, TeamCodeGenerator>();
+builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddHostedService<EventStatusBackgroundService>();
+
 // Database
 builder.Services.AddDbContext<TreasureHuntDbContext>(options =>
     options.UseNpgsql(
