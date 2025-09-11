@@ -7,10 +7,11 @@ import { LucideAngularModule } from 'lucide-angular';
 @Component({
   selector: 'app-join',
   imports: [ReactiveFormsModule, LucideAngularModule],
-  templateUrl: './join.html',
-  styleUrl: './join.scss',
+  templateUrl: './join.component.html',
+  styleUrl: './join.component.scss',
+  standalone: true
 })
-export class Join implements OnInit {
+export class JoinComponent implements OnInit {
   joinForm: FormGroup;
   isLoading = false;
   error: string | null = null;

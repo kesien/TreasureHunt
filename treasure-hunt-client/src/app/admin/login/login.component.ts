@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, LucideAngularModule],
-  templateUrl: './login.html',
-  styleUrl: './login.css',
+  imports: [ReactiveFormsModule, RouterLink],
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss',
+  standalone: true
 })
-export class Login implements OnInit {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isLoading = false;
   error: string | null = null;

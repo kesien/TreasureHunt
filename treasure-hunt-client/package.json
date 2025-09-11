@@ -36,7 +36,6 @@
     "@types/qrcode": "^1.5.5",
     "@zxing/library": "^0.21.3",
     "leaflet": "^1.9.4",
-    "lucide-angular": "^0.543.0",
     "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

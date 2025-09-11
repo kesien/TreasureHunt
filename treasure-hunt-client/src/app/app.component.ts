@@ -1,16 +1,17 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import {NavigationEnd, Router, RouterLink, RouterOutlet} from '@angular/router';
 import { Subject, filter, takeUntil } from 'rxjs';
 import { AuthState, AuthService } from './services/auth';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, LucideAngularModule],
-  templateUrl: './app.html',
-  styleUrl: './app.scss',
+  imports: [RouterOutlet, LucideAngularModule, RouterLink],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
+  standalone: true
 })
-export class App {
+export class AppComponent {
   title = 'TreasureHunt';
   authState: AuthState | null = null;
   currentRoute = '';

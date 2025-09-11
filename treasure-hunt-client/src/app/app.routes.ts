@@ -1,17 +1,17 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './guards/admin-guard';
-import { Join } from './team/join/join';
-import { Login } from './admin/login/login';
-import { Dashboard } from './admin/dashboard/dashboard';
-import { Dashboard as TeamDashboard } from './team/dashboard/dashboard';
-import { Events } from './admin/events/events';
-import { EventDetail } from './admin/event-detail/event-detail';
-import { TeamManagement } from './admin/team-management/team-management';
-import { LiveMonitor } from './admin/live-monitor/live-monitor';
+import { JoinComponent } from './team/join/join.component';
+import { LoginComponent } from './admin/login/login.component';
+import { DashboardComponent } from './admin/dashboard/dashboard.component';
+import { TeamDashboardComponent as TeamDashboard } from './team/team-dashboard/team-dashboard.component';
+import { EventsComponent } from './admin/events/events.component';
+import { EventDetailComponent } from './admin/event-detail/event-detail.component';
+import { TeamManagementComponent } from './admin/team-management/team-management.component';
+import { LiveMonitorComponent } from './admin/live-monitor/live-monitor.component';
 import { teamGuard } from './guards/team-guard';
-import { Map } from './team/map/map';
-import { LocationDetail } from './team/location-detail/location-detail';
-import { PhotoGallery } from './team/photo-gallery/photo-gallery';
+import { MapComponent } from './team/map/map.component';
+import { LocationDetailComponent } from './team/location-detail/location-detail.component';
+import { PhotoGalleryComponent } from './team/photo-gallery/photo-gallery.component';
 
 export const routes: Routes = [
   // Root redirect
@@ -24,7 +24,7 @@ export const routes: Routes = [
   // Quick join route from QR codes
   {
     path: 'join/:teamCode',
-    component: Join,
+    component: JoinComponent,
     // canActivate: [AuthRedirectGuard],
   },
 
@@ -39,32 +39,32 @@ export const routes: Routes = [
       },
       {
         path: 'login',
-        component: Login,
+        component: LoginComponent,
         // canActivate: [AuthRedirectGuard],
       },
       {
         path: 'dashboard',
-        component: Dashboard,
+        component: DashboardComponent,
         canActivate: [adminGuard],
       },
       {
         path: 'events',
-        component: Events,
+        component: EventsComponent,
         canActivate: [adminGuard],
       },
       {
         path: 'events/:id',
-        component: EventDetail,
+        component: EventDetailComponent,
         canActivate: [adminGuard],
       },
       {
         path: 'events/:id/teams',
-        component: TeamManagement,
+        component: TeamManagementComponent,
         canActivate: [adminGuard],
       },
       {
         path: 'events/:id/monitor',
-        component: LiveMonitor,
+        component: LiveMonitorComponent,
         canActivate: [adminGuard],
       },
     ],
@@ -81,7 +81,7 @@ export const routes: Routes = [
       },
       {
         path: 'join',
-        component: Join,
+        component: JoinComponent,
         // canActivate: [AuthRedirectGuard],
       },
       {
@@ -91,17 +91,17 @@ export const routes: Routes = [
       },
       {
         path: 'map',
-        component: Map,
+        component: MapComponent,
         canActivate: [teamGuard],
       },
       {
         path: 'location/:id',
-        component: LocationDetail,
+        component: LocationDetailComponent,
         canActivate: [teamGuard],
       },
       {
         path: 'photos',
-        component: PhotoGallery,
+        component: PhotoGalleryComponent,
         canActivate: [teamGuard],
       },
     ],
