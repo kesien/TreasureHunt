@@ -1,0 +1,153 @@
+<div class="min-h-screen bg-gradient-to-br from-treasure-50 to-adventure-50">
+  <!-- Mobile-First Design -->
+  <div class="mobile-container">
+    <!-- Header -->
+    <div class="bg-treasure-500 text-white p-6 text-center">
+      <div
+        class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-white bg-opacity-20 mb-4"
+      >
+        <lucide-icon name="map" class="h-8 w-8 text-white"></lucide-icon>
+      </div>
+      <h1 class="text-2xl font-bold font-heading">Treasure Hunt</h1>
+      <p class="text-treasure-100 mt-2">Join your team to start the adventure!</p>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6">
+      <!-- Success Message -->
+      <div *ngIf="success" class="mb-6 rounded-lg bg-adventure-50 p-4 border border-adventure-200">
+        <div class="flex items-center">
+          <lucide-icon name="check-circle" class="h-5 w-5 text-adventure-500 mr-3"></lucide-icon>
+          <p class="text-sm text-adventure-800 font-medium">{{ success }}</p>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="error" class="mb-6 rounded-lg bg-red-50 p-4 border border-red-200">
+        <div class="flex items-start">
+          <lucide-icon
+            name="alert-circle"
+            class="h-5 w-5 text-red-500 mr-3 mt-0.5 flex-shrink-0"
+          ></lucide-icon>
+          <p class="text-sm text-red-800">{{ error }}</p>
+        </div>
+      </div>
+
+      <!-- Join Form -->
+      <form [formGroup]="joinForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- QR Scanner Section -->
+        <div class="text-center">
+          <button
+            type="button"
+            (click)="toggleQrScanner()"
+            class="inline-flex items-center px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-treasure-300 hover:text-treasure-600 transition-colors duration-200"
+          >
+            <lucide-icon name="qr-code" class="h-5 w-5 mr-2"></lucide-icon>
+            Scan QR Code
+          </button>
+          <p class="text-xs text-gray-500 mt-2">Or enter team code manually below</p>
+        </div>
+
+        <!-- Divider -->
+        <div class="relative">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-300"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-white text-gray-500">Manual Entry</span>
+          </div>
+        </div>
+
+        <!-- Team Code Field -->
+        <div>
+          <label for="teamCode" class="label">Team Code</label>
+          <input
+            id="teamCode"
+            name="teamCode"
+            type="text"
+            formControlName="teamCode"
+            (input)="formatTeamCode($event)"
+            maxlength="6"
+            placeholder="ABC123"
+            [class.border-red-300]="
+              hasError('teamCode', 'required') ||
+              hasError('teamCode', 'minlength') ||
+              hasError('teamCode', 'maxlength')
+            "
+            class="input-field text-center text-lg font-mono tracking-widest uppercase"
+          />
+          <div class="mt-1 text-xs text-gray-500 text-center">
+            Enter the 6-character code from your QR code
+          </div>
+          <div *ngIf="hasError('teamCode', 'required')" class="mt-1 text-sm text-red-600">
+            Team code is required
+          </div>
+          <div
+            *ngIf="hasError('teamCode', 'minlength') || hasError('teamCode', 'maxlength')"
+            class="mt-1 text-sm text-red-600"
+          >
+            Team code must be exactly 6 characters
+          </div>
+        </div>
+
+        <!-- Team Name Field -->
+        <div>
+          <label for="teamName" class="label">Your Team Name</label>
+          <input
+            id="teamName"
+            name="teamName"
+            type="text"
+            formControlName="teamName"
+            placeholder="Team Dragons"
+            [class.border-red-300]="
+              hasError('teamName', 'required') ||
+              hasError('teamName', 'minlength') ||
+              hasError('teamName', 'maxlength')
+            "
+            class="input-field"
+          />
+          <div class="mt-1 text-xs text-gray-500">
+            Choose a fun name for your team (2-50 characters)
+          </div>
+          <div *ngIf="hasError('teamName', 'required')" class="mt-1 text-sm text-red-600">
+            Team name is required
+          </div>
+          <div *ngIf="hasError('teamName', 'minlength')" class="mt-1 text-sm text-red-600">
+            Team name must be at least 2 characters
+          </div>
+          <div *ngIf="hasError('teamName', 'maxlength')" class="mt-1 text-sm text-red-600">
+            Team name cannot exceed 50 characters
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          [disabled]="!isFormValid || isLoading"
+          class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-treasure-600 hover:bg-treasure-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-treasure-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+        >
+          <span *ngIf="!isLoading" class="flex items-center">
+            <lucide-icon name="users" class="h-5 w-5 mr-2"></lucide-icon>
+            Join Team
+          </span>
+          <span *ngIf="isLoading" class="flex items-center">
+            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+            Joining...
+          </span>
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="mt-8 text-center space-y-4">
+        <p class="text-xs text-gray-500">Need help? Contact your event organizer</p>
+
+        <button
+          (click)="navigateToAdminLogin()"
+          class="text-sm text-treasure-600 hover:text-treasure-500 font-medium"
+        >
+          Are you an event organizer? Admin Login →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

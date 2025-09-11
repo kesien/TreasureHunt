@@ -1,0 +1,136 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <!-- Header -->
+    <div>
+      <div class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-treasure-100">
+        <i class="mdi mdi-user h-8 w-8 inline-block text-treasure-600"></i>
+      </div>
+      <h2 class="mt-6 text-center text-3xl font-bold text-gray-900 font-heading">Admin Portal</h2>
+      <p class="mt-2 text-center text-sm text-gray-600">Sign in to manage treasure hunt events</p>
+    </div>
+
+    <!-- Login Form -->
+    <form class="mt-8 space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <!-- Error Message -->
+      <div *ngIf="error" class="rounded-md bg-red-50 p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <lucide-icon name="alert-circle" class="h-5 w-5 text-red-400"></lucide-icon>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-red-800">{{ error }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Fields -->
+      <div class="space-y-4">
+        <!-- Username Field -->
+        <div>
+          <label for="username" class="label">Username</label>
+          <div class="relative">
+            <input
+              id="username"
+              name="username"
+              type="text"
+              autocomplete="username"
+              formControlName="username"
+              [class.border-red-300]="
+                hasError('username', 'required') || hasError('username', 'minlength')
+              "
+              [class.focus:ring-red-500]="
+                hasError('username', 'required') || hasError('username', 'minlength')
+              "
+              [class.focus:border-red-500]="
+                hasError('username', 'required') || hasError('username', 'minlength')
+              "
+              class="input-field pl-10"
+              placeholder="Enter your username"
+            />
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <lucide-icon name="user" class="h-5 w-5 text-gray-400"></lucide-icon>
+            </div>
+          </div>
+          <div *ngIf="hasError('username', 'required')" class="mt-1 text-sm text-red-600">
+            Username is required
+          </div>
+          <div *ngIf="hasError('username', 'minlength')" class="mt-1 text-sm text-red-600">
+            Username must be at least 3 characters long
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div>
+          <label for="password" class="label">Password</label>
+          <div class="relative">
+            <input
+              id="password"
+              name="password"
+              [type]="showPassword ? 'text' : 'password'"
+              autocomplete="current-password"
+              formControlName="password"
+              [class.border-red-300]="
+                hasError('password', 'required') || hasError('password', 'minlength')
+              "
+              [class.focus:ring-red-500]="
+                hasError('password', 'required') || hasError('password', 'minlength')
+              "
+              [class.focus:border-red-500]="
+                hasError('password', 'required') || hasError('password', 'minlength')
+              "
+              class="input-field pl-10 pr-10"
+              placeholder="Enter your password"
+            />
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <lucide-icon name="lock" class="h-5 w-5 text-gray-400"></lucide-icon>
+            </div>
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center"
+            >
+              <lucide-icon
+                [name]="showPassword ? 'eye-off' : 'eye'"
+                class="h-5 w-5 text-gray-400 hover:text-gray-600"
+              ></lucide-icon>
+            </button>
+          </div>
+          <div *ngIf="hasError('password', 'required')" class="mt-1 text-sm text-red-600">
+            Password is required
+          </div>
+          <div *ngIf="hasError('password', 'minlength')" class="mt-1 text-sm text-red-600">
+            Password must be at least 6 characters long
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div>
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-treasure-600 hover:bg-treasure-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-treasure-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+        >
+          <span *ngIf="!isLoading" class="flex items-center">
+            <lucide-icon name="log-in" class="h-5 w-5 mr-2"></lucide-icon>
+            Sign in
+          </span>
+          <span *ngIf="isLoading" class="flex items-center">
+            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+            Signing in...
+          </span>
+        </button>
+      </div>
+
+      <!-- Additional Info -->
+      <div class="text-center">
+        <p class="text-xs text-gray-500">
+          For team members, use the
+          <a routerLink="/team/join" class="text-treasure-600 hover:text-treasure-500 font-medium">
+            team join page
+          </a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

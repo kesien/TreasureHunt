@@ -1,0 +1,212 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Desktop Navigation Header -->
+  <nav *ngIf="showNavigation" class="bg-white shadow-sm border-b sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex">
+          <!-- Logo/Home Button -->
+          <div class="flex-shrink-0 flex items-center">
+            <button
+              (click)="navigateToHome()"
+              class="flex items-center space-x-2 text-treasure-600 hover:text-treasure-700 transition-colors"
+            >
+              <i class="mdi mdi-home h-6 w-6 inline-block"></i>
+              <span class="hidden sm:block font-heading font-semibold text-lg">{{ title }}</span>
+            </button>
+          </div>
+
+          <!-- Desktop Navigation Links -->
+          <div class="hidden md:ml-8 md:flex md:space-x-8">
+            <!-- Admin Navigation -->
+            <ng-container *ngIf="isAdmin">
+              <a
+                routerLink="/admin/dashboard"
+                [class.border-treasure-500]="isRouteActive('/admin/dashboard')"
+                [class.text-gray-900]="isRouteActive('/admin/dashboard')"
+                [class.text-gray-500]="!isRouteActive('/admin/dashboard')"
+                class="border-transparent hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors"
+              >
+                <i class="mdi mdi-home h-4 w-4 mr-2 inline-block"></i>
+                Dashboard
+              </a>
+              <a
+                routerLink="/admin/events"
+                [class.border-treasure-500]="isRouteActive('/admin/events')"
+                [class.text-gray-900]="isRouteActive('/admin/events')"
+                [class.text-gray-500]="!isRouteActive('/admin/events')"
+                class="border-transparent hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors"
+              >
+                <i class="mdi mdi-calendar h-4 w-4 mr-2 inline-block"></i>
+                Events
+              </a>
+            </ng-container>
+
+            <!-- Team Navigation -->
+            <ng-container *ngIf="isTeam">
+              <a
+                routerLink="/team/dashboard"
+                [class.border-treasure-500]="isRouteActive('/team/dashboard')"
+                [class.text-gray-900]="isRouteActive('/team/dashboard')"
+                [class.text-gray-500]="!isRouteActive('/team/dashboard')"
+                class="border-transparent hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors"
+              >
+                <i class="mdi mdi-progress-clock h-4 w-4 mr-2 inline-block"></i>
+                Progress
+              </a>
+              <a
+                routerLink="/team/map"
+                [class.border-treasure-500]="isRouteActive('/team/map')"
+                [class.text-gray-900]="isRouteActive('/team/map')"
+                [class.text-gray-500]="!isRouteActive('/team/map')"
+                class="border-transparent hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors"
+              >
+                <i class="mdi mdi-map h-4 w-4 mr-2 inline-block"></i>
+                Map
+              </a>
+              <a
+                routerLink="/team/photos"
+                [class.border-treasure-500]="isRouteActive('/team/photos')"
+                [class.text-gray-900]="isRouteActive('/team/photos')"
+                [class.text-gray-500]="!isRouteActive('/team/photos')"
+                class="border-transparent hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors"
+              >
+                <i class="mdi mdi-camera h-4 w-4 mr-2 inline-block"></i>
+                Photos
+              </a>
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          <!-- User Info -->
+          <div class="hidden md:block mr-4 text-right">
+            <div *ngIf="isAdmin" class="text-sm font-medium text-gray-900">Admin</div>
+            <div *ngIf="isTeam" class="text-sm">
+              <div class="font-medium text-gray-900">{{ teamName }}</div>
+              <div class="text-xs text-gray-500">{{ eventName }}</div>
+            </div>
+          </div>
+
+          <!-- Desktop Logout Button -->
+          <button
+            (click)="logout()"
+            class="hidden md:inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-treasure-500 transition-colors"
+          >
+            <i class="mdi mdi-logout h-4 w-4 mr-2 inline-block"></i>
+            Logout
+          </button>
+
+          <!-- Mobile menu button -->
+          <button
+            (click)="toggleMobileMenu()"
+            class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-treasure-500"
+          >
+            @if (mobileMenuOpen) {
+            <i class="mdi mdi-close h-6 w-6 inline-block"></i>
+            } @else {
+            <i class="mdi mdi-menu h-6 w-6 inline-block"></i>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div *ngIf="mobileMenuOpen" class="md:hidden">
+      <div class="pt-2 pb-3 space-y-1 bg-gray-50 border-t">
+        <!-- Admin Mobile Links -->
+        <ng-container *ngIf="isAdmin">
+          <a
+            routerLink="/admin/dashboard"
+            [class.bg-treasure-50]="isRouteActive('/admin/dashboard')"
+            [class.border-treasure-500]="isRouteActive('/admin/dashboard')"
+            [class.text-treasure-700]="isRouteActive('/admin/dashboard')"
+            class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors"
+          >
+            <div class="flex items-center">
+              <i class="mdi mdi-flash h-5 w-5 mr-3 inline-block"></i>
+              Dashboard
+            </div>
+          </a>
+          <a
+            routerLink="/admin/events"
+            [class.bg-treasure-50]="isRouteActive('/admin/events')"
+            [class.border-treasure-500]="isRouteActive('/admin/events')"
+            [class.text-treasure-700]="isRouteActive('/admin/events')"
+            class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors"
+          >
+            <div class="flex items-center">
+              <i class="mdi mdi-calendar h-5 w-5 mr-3 inline-block"></i>
+              Events
+            </div>
+          </a>
+        </ng-container>
+
+        <!-- Team Mobile Links -->
+        <ng-container *ngIf="isTeam">
+          <a
+            routerLink="/team/dashboard"
+            [class.bg-treasure-50]="isRouteActive('/team/dashboard')"
+            [class.border-treasure-500]="isRouteActive('/team/dashboard')"
+            [class.text-treasure-700]="isRouteActive('/team/dashboard')"
+            class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors"
+          >
+            <div class="flex items-center">
+              <i class="mdi mdi-flash h-5 w-5 mr-3 inline-block"></i>
+              Progress
+            </div>
+          </a>
+          <a
+            routerLink="/team/map"
+            [class.bg-treasure-50]="isRouteActive('/team/map')"
+            [class.border-treasure-500]="isRouteActive('/team/map')"
+            [class.text-treasure-700]="isRouteActive('/team/map')"
+            class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors"
+          >
+            <div class="flex items-center">
+              <i class="mdi mdi-map h-5 w-5 mr-3 inline-block"></i>
+              Map
+            </div>
+          </a>
+          <a
+            routerLink="/team/photos"
+            [class.bg-treasure-50]="isRouteActive('/team/photos')"
+            [class.border-treasure-500]="isRouteActive('/team/photos')"
+            [class.text-treasure-700]="isRouteActive('/team/photos')"
+            class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors"
+          >
+            <div class="flex items-center">
+              <i class="mdi mdi-camera h-5 w-5 mr-3 inline-block"></i>
+              Photos
+            </div>
+          </a>
+        </ng-container>
+
+        <!-- Mobile User Info and Logout -->
+        <div class="pt-4 pb-3 border-t border-gray-200">
+          <div class="px-4">
+            <div *ngIf="isAdmin" class="text-base font-medium text-gray-800">Admin</div>
+            <div *ngIf="isTeam">
+              <div class="text-base font-medium text-gray-800">{{ teamName }}</div>
+              <div class="text-sm text-gray-500">{{ eventName }}</div>
+            </div>
+          </div>
+          <div class="mt-3 px-2">
+            <button
+              (click)="logout()"
+              class="w-full flex items-center px-3 py-2 text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-md transition-colors"
+            >
+              <i class="mdi mdi-logout h-5 w-5 mr-3 inline-block"></i>
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="flex-1">
+    <router-outlet></router-outlet>
+  </main>
+</div>

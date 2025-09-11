@@ -1,0 +1,110 @@
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  .home-button {
+    margin-right: 8px;
+  }
+
+  .app-title {
+    font-weight: 500;
+    cursor: pointer;
+    margin-right: 16px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 8px;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      &.active {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      mat-icon {
+        font-size: 18px;
+        height: 18px;
+        width: 18px;
+      }
+    }
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  .user-info {
+    margin-right: 16px;
+
+    .user-label {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      font-size: 14px;
+      line-height: 1.2;
+
+      small {
+        font-size: 12px;
+        opacity: 0.8;
+      }
+    }
+  }
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+
+  &.with-toolbar {
+    height: calc(100vh - 64px);
+  }
+}
+
+// Mobile responsive
+@media (max-width: 768px) {
+  .app-toolbar {
+    .nav-links {
+      button {
+        min-width: 40px;
+
+        span:not(mat-icon) {
+          display: none; // Hide text on mobile, keep icons
+        }
+      }
+    }
+
+    .user-info {
+      .user-label small {
+        display: none; // Hide event name on mobile
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .app-toolbar {
+    padding: 0 8px;
+
+    .app-title {
+      font-size: 16px;
+      margin-right: 8px;
+    }
+
+    .user-info {
+      margin-right: 8px;
+      font-size: 12px;
+    }
+  }
+}

@@ -1,0 +1,24 @@
+.mobile-container {
+  @apply max-w-md mx-auto bg-white min-h-screen shadow-lg;
+}
+
+// Custom styles for team code input
+input[formControlName="teamCode"] {
+  letter-spacing: 0.25em;
+}
+
+// Animation for success messages
+.success-enter {
+  animation: slideInDown 0.5s ease-out;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
