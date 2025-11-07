@@ -22,7 +22,12 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": ["src/styles.scss"],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "node_modules"
+              ]
+            }
           },
           "configurations": {
             "production": {
@@ -62,7 +67,10 @@
               "buildTarget": "treasure-hunt-client:build:production"
             },
             "development": {
-              "buildTarget": "treasure-hunt-client:build:development"
+              "buildTarget": "treasure-hunt-client:build:development",
+              "ssl": true,
+              "sslKey": "ssl/server.key",
+              "sslCert": "ssl/server.crt"
             }
           },
           "defaultConfiguration": "development"

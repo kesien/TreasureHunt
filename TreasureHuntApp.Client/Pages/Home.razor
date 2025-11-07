@@ -1,0 +1,83 @@
+﻿@page "/"
+
+<PageTitle>TreasureHunt - Főoldal</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudPaper Class="pa-8 ma-4" Elevation="3">
+        <div class="text-center">
+            <MudIcon Icon="@Icons.Material.Filled.Search" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
+            <MudText Typo="Typo.h3" Class="mb-4">Üdvözöl a TreasureHunt App!</MudText>
+            <MudText Typo="Typo.h6" Color="Color.Secondary" Class="mb-6">
+                Közösségi kincskeresés alkalmazás Húsvéti és Halloween eseményekhez
+            </MudText>
+        </div>
+
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudCard Elevation="2" Class="pa-4 ma-2">
+                    <MudCardContent Class="text-center">
+                        <MudIcon Icon="@Icons.Material.Filled.AdminPanelSettings" Size="Size.Large" Color="Color.Primary" Class="mb-3" />
+                        <MudText Typo="Typo.h5" Class="mb-2">Eseményszervezők</MudText>
+                        <MudText Typo="Typo.body1" Class="mb-4">
+                            Hozzon létre és kezeljen kincskeresési eseményeket,
+                            kövesse nyomon a csapatok haladását valós időben.
+                        </MudText>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                                   Href="/admin/login" StartIcon="@Icons.Material.Filled.Login">
+                            Admin bejelentkezés
+                        </MudButton>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudCard Elevation="2" Class="pa-4 ma-2">
+                    <MudCardContent Class="text-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Groups" Size="Size.Large" Color="Color.Secondary" Class="mb-3" />
+                        <MudText Typo="Typo.h5" Class="mb-2">Csapatok</MudText>
+                        <MudText Typo="Typo.body1" Class="mb-4">
+                            Csatlakozzon csapatához QR kóddal vagy csapatkóddal,
+                            fedezze fel a helyszíneket és gyűjtsön kincseket!
+                        </MudText>
+                        <MudButton Variant="Variant.Filled" Color="Color.Secondary"
+                                   Href="/team/join" StartIcon="@Icons.Material.Filled.QrCode">
+                            Csapat csatlakozás
+                        </MudButton>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+
+        <MudDivider Class="my-6" />
+
+        <div class="text-center">
+            <MudText Typo="Typo.h6" Class="mb-4">Funkciók</MudText>
+            <MudGrid>
+                <MudItem xs="12" sm="6" md="3">
+                    <div class="text-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Map" Size="Size.Large" Color="Color.Info" />
+                        <MudText Typo="Typo.subtitle1" Class="mt-2">Interaktív térkép</MudText>
+                    </div>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3">
+                    <div class="text-center">
+                        <MudIcon Icon="@Icons.Material.Filled.PhotoCamera" Size="Size.Large" Color="Color.Success" />
+                        <MudText Typo="Typo.subtitle1" Class="mt-2">Fotó feltöltés</MudText>
+                    </div>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3">
+                    <div class="text-center">
+                        <MudIcon Icon="@Icons.Material.Filled.TrendingFlat" Size="Size.Large" Color="Color.Warning" />
+                        <MudText Typo="Typo.subtitle1" Class="mt-2">Valós idejű követés</MudText>
+                    </div>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3">
+                    <div class="text-center">
+                        <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Size="Size.Large" Color="Color.Error" />
+                        <MudText Typo="Typo.subtitle1" Class="mt-2">Haladás nyomon követés</MudText>
+                    </div>
+                </MudItem>
+            </MudGrid>
+        </div>
+    </MudPaper>
+</MudContainer>

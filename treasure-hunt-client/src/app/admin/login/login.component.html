@@ -2,10 +2,10 @@
   <div class="max-w-md w-full space-y-8">
     <div>
       <div class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-treasure-100">
-        <i class="mdi mdi-user h-8 w-8 inline-block text-treasure-600"></i>
+        <i class="mdi mdi-account text-3xl text-treasure-600"></i>
       </div>
-      <h2 class="mt-6 text-center text-3xl font-bold text-gray-900 font-heading">Admin Portal</h2>
-      <p class="mt-2 text-center text-sm text-gray-600">Sign in to manage treasure hunt events</p>
+      <h2 class="mt-6 text-center text-3xl font-bold text-gray-900 font-heading">Admin Portál</h2>
+      <p class="mt-2 text-center text-sm text-gray-600">Jelentkezz be a kincsvadász események kezeléséhez</p>
     </div>
 
     <form class="mt-8 space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
@@ -13,7 +13,7 @@
         <div class="rounded-md bg-red-50 p-4">
           <div class="flex">
             <div class="flex-shrink-0">
-              <i class="mdi mdi-alert-circle inline-block h-5 w-5 text-red-400"></i>
+              <i class="mdi mdi-alert-circle inline-block text-red-400"></i>
             </div>
             <div class="ml-3">
               <p class="text-sm text-red-800">{{ error }}</p>
@@ -24,7 +24,7 @@
 
       <div class="space-y-4">
         <div>
-          <label for="username" class="label">Username</label>
+          <label for="username" class="label">Felhasználónév</label>
           <div class="relative">
             <input
               id="username"
@@ -42,26 +42,26 @@
                 hasError('username', 'required') || hasError('username', 'minlength')
               "
               class="input-field pl-10"
-              placeholder="Enter your username"
+              placeholder="Add meg a felhasználóneved"
             />
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i class="mdi mdi-account h-5 w-5 text-gray-400 inline-block"></i>
+              <i class="mdi mdi-account text-gray-400 inline-block"></i>
             </div>
           </div>
           @if (hasError('username', 'required')) {
             <div class="mt-1 text-sm text-red-600">
-              Username is required
+              A felhasználónév megadása kötelező
             </div>
           }
           @if (hasError('username', 'minlength')) {
             <div class="mt-1 text-sm text-red-600">
-              Username must be at least 3 characters long
+              A felhasználónévnek legalább 3 karakter hosszúnak kell lennie
             </div>
           }
         </div>
 
         <div>
-          <label for="password" class="label">Password</label>
+          <label for="password" class="label">Jelszó</label>
           <div class="relative">
             <input
               id="password"
@@ -79,10 +79,10 @@
                 hasError('password', 'required') || hasError('password', 'minlength')
               "
               class="input-field pl-10 pr-10"
-              placeholder="Enter your password"
+              placeholder="Add meg a jelszavad"
             />
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i class="mdi mdi-lock h-5 w-5 inline-block text-gray-400"></i>
+              <i class="mdi mdi-lock inline-block text-gray-400"></i>
             </div>
             <button
               type="button"
@@ -90,20 +90,20 @@
               class="absolute inset-y-0 right-0 pr-3 flex items-center"
             >
               @if (showPassword) {
-                <i class="mdi mdi-eye-off h-5 w-5 text-gray-400 hover:text-gray-600 inline-block"></i>
+                <i class="mdi mdi-eye-off text-gray-400 hover:text-gray-600 inline-block"></i>
               } @else {
-                <i class="mdi mdi-eye h-5 w-5 text-gray-400 hover:text-gray-600 inline-block"></i>
+                <i class="mdi mdi-eye text-gray-400 hover:text-gray-600 inline-block"></i>
               }
             </button>
           </div>
           @if (hasError('password', 'required')) {
             <div class="mt-1 text-sm text-red-600">
-              Password is required
+              A jelszó megadása kötelező
             </div>
           }
           @if (hasError('password', 'minlength')) {
             <div class="mt-1 text-sm text-red-600">
-              Password must be at least 6 characters long
+              A jelszónak legalább 6 karakter hosszúnak kell lennie
             </div>
           }
         </div>
@@ -117,13 +117,13 @@
         >
           @if (!isLoading) {
             <span class="flex items-center">
-              <i class="mdi mdi-login h-5 w-5 mr-2 inline-block"></i>
-              Sign in
+              <i class="mdi mdi-login mr-2 inline-block"></i>
+              Bejelentkezés
             </span>
           } @else {
             <span class="flex items-center">
-              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              Signing in...
+              <div class="animate-spin rounded-full border-b-2 border-white mr-2"></div>
+              Bejelentkezés folyamatban...
             </span>
           }
         </button>
@@ -131,9 +131,9 @@
 
       <div class="text-center">
         <p class="text-xs text-gray-500">
-          For team members, use the
+          Csapattagok számára elérhető a
           <a routerLink="/team/join" class="text-treasure-600 hover:text-treasure-500 font-medium">
-            team join page
+            csatlakozás az oldalhoz
           </a>
         </p>
       </div>

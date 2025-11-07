@@ -165,6 +165,13 @@ namespace TreasureHuntApp.API.Migrations
                     b.Property<bool>("AllowTeamTracking")
                         .HasColumnType("boolean");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -204,8 +211,15 @@ namespace TreasureHuntApp.API.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int>("EventId")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean");
 
                     b.Property<double>("Latitude")
                         .HasPrecision(10, 8)
@@ -219,6 +233,9 @@ namespace TreasureHuntApp.API.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -247,6 +264,9 @@ namespace TreasureHuntApp.API.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<int?>("LocationEntityId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("LocationId")
                         .HasColumnType("integer");
 
@@ -257,6 +277,8 @@ namespace TreasureHuntApp.API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LocationEntityId");
 
                     b.HasIndex("LocationId");
 
@@ -506,6 +528,10 @@ namespace TreasureHuntApp.API.Migrations
 
             modelBuilder.Entity("TreasureHuntApp.Core.Entities.PhotoEntity", b =>
                 {
+                    b.HasOne("TreasureHuntApp.Core.Entities.LocationEntity", null)
+                        .WithMany("Photos")
+                        .HasForeignKey("LocationEntityId");
+
                     b.HasOne("TreasureHuntApp.Core.Entities.LocationEntity", "Location")
                         .WithMany()
                         .HasForeignKey("LocationId")
@@ -573,6 +599,8 @@ namespace TreasureHuntApp.API.Migrations
 
             modelBuilder.Entity("TreasureHuntApp.Core.Entities.LocationEntity", b =>
                 {
+                    b.Navigation("Photos");
+
                     b.Navigation("Visits");
                 });
 

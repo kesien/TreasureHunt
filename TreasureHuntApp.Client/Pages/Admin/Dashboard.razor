@@ -1,0 +1,251 @@
+﻿@page "/admin/dashboard"
+@using TreasureHuntApp.Client.Models
+@using TreasureHuntApp.Client.Services.Api
+@using TreasureHuntApp.Client.Components.Admin
+@using TreasureHuntApp.Core.Entities
+@using TreasureHuntApp.Shared.DTOs
+@layout AdminLayout
+@inject IEventService EventService
+@inject NavigationManager Navigation
+
+<MudText Typo="Typo.h3" Class="mb-4">Dashboard</MudText>
+<MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-8">
+    Esemény áttekintés és statisztikák
+</MudText>
+
+@if (_isLoading)
+{
+    <div class="d-flex justify-center my-8">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </div>
+}
+else if (_stats != null)
+{
+    <div class="stats-grid mb-8">
+        <StatsCard Title="Összes Esemény"
+                   Value="@_stats.TotalEvents.ToString()"
+                   Icon="@Icons.Material.Filled.Event"
+                   IconColor="Color.Primary" />
+
+        <StatsCard Title="Aktív Események"
+                   Value="@_stats.ActiveEvents.ToString()"
+                   Icon="@Icons.Material.Filled.PlayArrow"
+                   IconColor="Color.Success" />
+
+        <StatsCard Title="Regisztrált Csapatok"
+                   Value="@_stats.TotalTeams.ToString()"
+                   Icon="@Icons.Material.Filled.Group"
+                   IconColor="Color.Info" />
+
+        <StatsCard Title="Befejezett Események"
+                   Value="@_stats.CompletedEvents.ToString()"
+                   Icon="@Icons.Material.Filled.CheckCircle"
+                   IconColor="Color.Warning" />
+    </div>
+
+    <MudGrid>
+        <MudItem xs="12" md="8">
+            <MudCard Class="dashboard-card">
+                <MudCardContent>
+                    <MudText Typo="Typo.h6" Class="mb-4">Legutóbbi Események</MudText>
+                    @if (_recentEvents?.Any() == true)
+                    {
+                        <MudDataGrid Items="@_recentEvents" 
+                                     Hover="true" 
+                                     Striped="true"
+                                     Dense="true"
+                                     FixedHeader="true"
+                                     Height="400px">
+                            <Columns>
+                                <PropertyColumn Property="x => x.Name" Title="Esemény Neve" />
+                                <PropertyColumn Property="x => x.EventType" Title="Típus">
+                                    <CellTemplate>
+                                        <MudChip Size="Size.Small" 
+                                                 Color="@(context.Item.EventType == EventType.Easter ? Color.Success : Color.Warning)">
+                                            @(context.Item.EventType == EventType.Easter ? "Húsvét" : "Halloween")
+                                        </MudChip>
+                                    </CellTemplate>
+                                </PropertyColumn>
+                                <PropertyColumn Property="x => x.Status" Title="Állapot">
+                                    <CellTemplate>
+                                        <MudChip Size="Size.Small" 
+                                                 Color="@GetStatusColor(context.Item.Status)">
+                                            @GetStatusText(context.Item.Status)
+                                        </MudChip>
+                                    </CellTemplate>
+                                </PropertyColumn>
+                                <PropertyColumn Property="x => x.TeamCount" Title="Csapatok" />
+                                <PropertyColumn Property="x => x.LocationCount" Title="Helyszínek" />
+                                <TemplateColumn Title="Műveletek">
+                                    <CellTemplate>
+                                        <MudButton Size="Size.Small" 
+                                                   Variant="Variant.Text" 
+                                                   Color="Color.Primary"
+                                                   OnClick="@(() => ViewEvent(context.Item.Id))">
+                                            Részletek
+                                        </MudButton>
+                                    </CellTemplate>
+                                </TemplateColumn>
+                            </Columns>
+                        </MudDataGrid>
+                    }
+                    else
+                    {
+                        <MudAlert Severity="Severity.Info">
+                            Még nincs esemény létrehozva.
+                        </MudAlert>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudCard Class="dashboard-card mb-4">
+                <MudCardContent>
+                    <MudText Typo="Typo.h6" Class="mb-4">Gyors Műveletek</MudText>
+                    <div class="d-flex flex-column ga-2">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.Add"
+                                   FullWidth="true"
+                                   OnClick="@CreateEvent">
+                            Új Esemény
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Secondary"
+                                   StartIcon="@Icons.Material.Filled.List"
+                                   FullWidth="true"
+                                   OnClick="@ViewAllEvents">
+                            Összes Esemény
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Info"
+                                   StartIcon="@Icons.Material.Filled.Monitor"
+                                   FullWidth="true"
+                                   OnClick="@OpenMonitoring">
+                            Élő Követés
+                        </MudButton>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+
+            <MudCard Class="dashboard-card">
+                <MudCardContent>
+                    <MudText Typo="Typo.h6" Class="mb-4">Rendszer Információ</MudText>
+                    <div class="d-flex flex-column ga-2">
+                        <div class="d-flex justify-space-between">
+                            <MudText Typo="Typo.body2">Átlagos teljesítési arány:</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Primary">
+                            @((_stats.CompletedEvents/_stats.TotalEvents).ToString("P0"))
+                            </MudText>
+                        </div>
+                        <div class="d-flex justify-space-between">
+                            <MudText Typo="Typo.body2">Aktív csapatok:</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Success">
+                                @_stats.ActiveTeams
+                            </MudText>
+                        </div>
+                        <div class="d-flex justify-space-between">
+                            <MudText Typo="Typo.body2">Utolsó frissítés:</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                @DateTime.Now.ToString("HH:mm")
+                            </MudText>
+                        </div>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+}
+else
+{
+    <MudAlert Severity="Severity.Error">
+        Nem sikerült betölteni a dashboard adatokat.
+    </MudAlert>
+}
+
+@code {
+    private EventStatsResponse? _stats;
+    private List<EventResponse> _recentEvents = new();
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardDataAsync();
+    }
+
+    private async Task LoadDashboardDataAsync()
+    {
+        _isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var statsResponse = await EventService.GetDashboardStatsAsync();
+            if (statsResponse.Success && statsResponse.Data != null)
+            {
+                _stats = statsResponse.Data;
+            }
+
+            var eventsResponse = await EventService.GetEventsAsync();
+            if (eventsResponse.Success && eventsResponse.Data != null)
+            {
+                _recentEvents = eventsResponse.Data
+                    .OrderByDescending(e => e.Id)
+                    .Take(10)
+                    .ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Dashboard loading error: {ex.Message}");
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private Color GetStatusColor(EventStatus status)
+    {
+        return status switch
+        {
+            EventStatus.Created => Color.Info,
+            EventStatus.Active => Color.Success,
+            EventStatus.Finished => Color.Warning,
+            _ => Color.Default
+        };
+    }
+
+    private string GetStatusText(EventStatus status)
+    {
+        return status switch
+        {
+            EventStatus.Created => "Ütemezett",
+            EventStatus.Active => "Aktív",
+            EventStatus.Finished => "Befejezett",
+            _ => "Ismeretlen"
+        };
+    }
+
+    private void ViewEvent(int eventId)
+    {
+        Navigation.NavigateTo($"/admin/events/{eventId}");
+    }
+
+    private void CreateEvent()
+    {
+        Navigation.NavigateTo("/admin/events");
+    }
+
+    private void ViewAllEvents()
+    {
+        Navigation.NavigateTo("/admin/events");
+    }
+
+    private void OpenMonitoring()
+    {
+        Navigation.NavigateTo("/admin/monitor");
+    }
+}

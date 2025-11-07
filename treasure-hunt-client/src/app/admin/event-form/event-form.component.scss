@@ -1,0 +1,46 @@
+.card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+}
+
+.btn-primary {
+  @apply bg-treasure-500 text-white px-4 py-2 rounded-lg hover:bg-treasure-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center font-medium;
+}
+
+.btn-secondary {
+  @apply bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center font-medium;
+}
+
+.input-field {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-treasure-500 focus:border-transparent transition-all;
+}
+
+.input-field:focus {
+  @apply shadow-sm;
+}
+
+/* Form validation styles */
+.br-red-500 {
+  @apply border-red-500 focus:ring-red-500;
+}
+
+/* Loading animation */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card {
+    @apply p-4;
+  }
+
+  .grid {
+    @apply grid-cols-1;
+  }
+}

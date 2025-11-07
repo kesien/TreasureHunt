@@ -35,18 +35,20 @@
     "@types/leaflet": "^1.9.20",
     "@types/qrcode": "^1.5.5",
     "@zxing/library": "^0.21.3",
+    "@zxing/ngx-scanner": "^20.0.0",
     "leaflet": "^1.9.4",
     "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "tailwindcss": "^3.4.17",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
     "@angular/build": "^20.3.0",
     "@angular/cli": "^20.3.0",
     "@angular/compiler-cli": "^20.3.0",
-    "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/typography": "^0.5.16",
     "@types/jasmine": "~5.1.0",
     "autoprefixer": "^10.4.21",
     "jasmine-core": "~5.9.0",
@@ -57,7 +59,6 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "postcss": "^8.5.6",
     "postcss-import": "^16.1.1",
-    "tailwindcss": "^3.4.17",
     "typescript": "~5.9.2"
   }
 }

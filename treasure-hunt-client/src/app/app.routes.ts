@@ -12,6 +12,8 @@ import { teamGuard } from './guards/team-guard';
 import { MapComponent } from './team/map/map.component';
 import { LocationDetailComponent } from './team/location-detail/location-detail.component';
 import { PhotoGalleryComponent } from './team/photo-gallery/photo-gallery.component';
+import { authRedirectGuard } from './guards/auth-redirect-guard';
+import { EventFormComponent } from './admin/event-form/event-form.component';
 
 export const routes: Routes = [
   // Root redirect
@@ -25,7 +27,7 @@ export const routes: Routes = [
   {
     path: 'join/:teamCode',
     component: JoinComponent,
-    // canActivate: [AuthRedirectGuard],
+    canActivate: [authRedirectGuard],
   },
 
   // Admin routes (protected)
@@ -40,7 +42,7 @@ export const routes: Routes = [
       {
         path: 'login',
         component: LoginComponent,
-        // canActivate: [AuthRedirectGuard],
+        canActivate: [authRedirectGuard],
       },
       {
         path: 'dashboard',
@@ -54,7 +56,7 @@ export const routes: Routes = [
       },
       {
         path: 'events/:id',
-        component: EventDetailComponent,
+        component: EventFormComponent,
         canActivate: [adminGuard],
       },
       {
@@ -82,7 +84,7 @@ export const routes: Routes = [
       {
         path: 'join',
         component: JoinComponent,
-        // canActivate: [AuthRedirectGuard],
+        canActivate: [authRedirectGuard],
       },
       {
         path: 'dashboard',

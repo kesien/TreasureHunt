@@ -10,13 +10,15 @@ export const adminGuard: CanActivateFn = (route, state) => {
     map((authState) => {
       if (authState.isAuthenticated) {
         if (authState.userType === 'admin') {
-          router.navigate(['/admin/dashboard']);
+          return true;
         } else if (authState.userType === 'team') {
           router.navigate(['/team/dashboard']);
         }
+        return true;
+      } else {
+        router.navigate(['/admin/login'])
         return false;
       }
-      return true;
     })
   );
 };

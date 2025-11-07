@@ -1,0 +1,47 @@
+﻿<Router AppAssembly="@typeof(Program).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                @if (context.User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="d-flex justify-center align-center" style="height: 100vh;">
+                        <MudAlert Severity="Severity.Warning">
+                            Nincs jogosultsága az oldal megtekintéséhez.
+                        </MudAlert>
+                    </div>
+                }
+                else
+                {
+                    <RedirectToLogin />
+                }
+            </NotAuthorized>
+            <Authorizing>
+                <div class="d-flex justify-center align-center" style="height: 100vh;">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                </div>
+            </Authorizing>
+        </AuthorizeRouteView>
+    </Found>
+    <NotFound>
+        <PageTitle>Nem található</PageTitle>
+        <LayoutView Layout="@typeof(Layout.MainLayout)">
+            <div class="d-flex justify-center align-center" style="height: 100vh;">
+                <MudCard Class="pa-8">
+                    <MudCardContent Class="text-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Error" 
+                                 Size="Size.Large" 
+                                 Color="Color.Error" 
+                                 Class="mb-4" />
+                        <MudText Typo="Typo.h4">404 - Oldal nem található</MudText>
+                        <MudButton Variant="Variant.Filled" 
+                                   Color="Color.Primary" 
+                                   Href="/"
+                                   Class="mt-4">
+                            Vissza a főoldalra
+                        </MudButton>
+                    </MudCardContent>
+                </MudCard>
+            </div>
+        </LayoutView>
+    </NotFound>
+</Router>

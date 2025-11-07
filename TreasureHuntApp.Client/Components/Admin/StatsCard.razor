@@ -1,0 +1,69 @@
+﻿<MudCard Class="dashboard-card" Elevation="2">
+    <MudCardContent>
+        <div class="d-flex align-center">
+            <div class="stats-icon-container mr-4">
+                <MudIcon Icon="@Icon"
+                         Color="@IconColor"
+                         Size="Size.Large" />
+            </div>
+            <div class="flex-grow-1">
+                <MudText Typo="Typo.h4"
+                         Color="Color.Dark"
+                         Class="font-weight-bold stats-value">
+                    @Value
+                </MudText>
+                <MudText Typo="Typo.body1"
+                         Color="Color.Secondary"
+                         Class="stats-title">
+                    @Title
+                </MudText>
+            </div>
+        </div>
+
+        @if (ShowTrend)
+        {
+            <div class="d-flex align-center justify-end mt-2">
+                <MudIcon Icon="@(TrendUp? Icons.Material.Filled.TrendingUp : Icons.Material.Filled.TrendingDown)"
+                         Color="@(TrendUp ? Color.Success : Color.Error)"
+                         Size="Size.Small"
+                         Class="mr-1" />
+                <MudText Typo="Typo.caption"
+                         Color="@(TrendUp ? Color.Success : Color.Error)">
+                    @TrendText
+                </MudText>
+            </div>
+        }
+    </MudCardContent>
+</MudCard>
+
+<style>
+    .stats-icon-container {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    }
+
+    .stats-value {
+        line-height: 1.2;
+        margin-bottom: 4px;
+    }
+
+    .stats-title {
+        line-height: 1.2;
+        font-weight: 500;
+    }
+</style>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Value { get; set; } = string.Empty;
+    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.Info;
+    [Parameter] public Color IconColor { get; set; } = Color.Primary;
+    [Parameter] public bool ShowTrend { get; set; } = false;
+    [Parameter] public bool TrendUp { get; set; } = true;
+    [Parameter] public string TrendText { get; set; } = string.Empty;
+}

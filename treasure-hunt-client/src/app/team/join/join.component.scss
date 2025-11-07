@@ -22,3 +22,60 @@ input[formControlName="teamCode"] {
     transform: translateY(0);
   }
 }
+
+.mobile-container {
+  @apply max-w-md mx-auto px-4 py-6;
+}
+
+.scanner-container {
+  @apply relative;
+}
+
+.scanner-viewport {
+  @apply relative;
+}
+
+.scanner-wrapper {
+  @apply relative rounded-lg overflow-hidden bg-black;
+  aspect-ratio: 1;
+}
+
+.scanner-element {
+  @apply w-full h-full;
+}
+
+.scanner-overlay {
+  @apply absolute inset-0 pointer-events-none flex flex-col items-center justify-center;
+}
+
+.scanner-frame {
+  @apply border-2 border-white rounded-lg;
+  width: 250px;
+  height: 250px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+}
+
+.scanner-instruction {
+  @apply text-white text-sm font-medium mt-4 text-center px-4;
+}
+
+@media (max-width: 480px) {
+  .scanner-frame {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

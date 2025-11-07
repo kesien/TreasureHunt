@@ -4,10 +4,10 @@
       <div
         class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-white bg-opacity-20 mb-4"
       >
-        <i class="mdi mdi-map h-8 w-8 text-white inline-block"></i>
+        <i class="mdi mdi-map text-3xl text-white inline-block"></i>
       </div>
-      <h1 class="text-2xl font-bold font-heading">Treasure Hunt</h1>
-      <p class="text-treasure-100 mt-2">Join your team to start the adventure!</p>
+      <h1 class="text-2xl font-bold font-heading">Kincsvadászat</h1>
+      <p class="text-treasure-100 mt-2">Csatlakozz a csapatodhoz, hogy elkezdődhessen a kaland!</p>
     </div>
 
     <div class="p-6">
@@ -33,26 +33,94 @@
         <div class="text-center">
           <button
             type="button"
-            (click)="toggleQrScanner()"
+            (click)="toggleScanner()"
             class="inline-flex items-center px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-treasure-300 hover:text-treasure-600 transition-colors duration-200"
           >
-            <i class="mdi mdi-qrcode h-5 w-5 mr-2 inline-block"></i>
-            Scan QR Code
+            <i class="mdi mdi-qrcode mr-2 inline-block"></i>
+            QR-kód beolvasása
           </button>
-          <p class="text-xs text-gray-500 mt-2">Or enter team code manually below</p>
+
+          @if (scannerEnabled) {
+            @if (!permissionDenied) {
+
+              <div class="scanner-wrapper mt-2">
+                <zxing-scanner
+                  #scanner
+                  [formats]="allowedFormats"
+                  [device]="selectedDevice!"
+                  (scanSuccess)="onScanSuccess($event)"
+                  (scanError)="onScanError($event)"
+                  (scanFailure)="onScanFailure($event)"
+                  (camerasFound)="onCamerasFound($event)"
+                  (camerasNotFound)="onCamerasNotFound()"
+                  (permissionResponse)="onPermissionResponse($event)"
+                  [tryHarder]="true"
+                  class="scanner-element"
+                ></zxing-scanner>
+
+                <div class="scanner-overlay">
+                  <div class="scanner-frame"></div>
+                  <p class="scanner-instruction">Helyezd a QR-kódot a keretbe</p>
+                </div>
+              </div>
+            }
+
+            <div class="scanner-container">
+              @if (!hasPermission && !permissionDenied) {
+                <div class="text-center py-8">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-treasure-500 mx-auto mb-4"></div>
+                  <p class="text-gray-600">Kameraengedély kérése...</p>
+                </div>
+              }
+
+              @if (permissionDenied) {
+                <div class="text-center py-8 text-red-600">
+                  <i class="mdi mdi-camera-off text-2xl mx-auto mb-4 text-red-400 inline-block"></i>
+                  <p class="font-medium">Kameraengedély megtagadva</p>
+                  <p class="text-sm text-gray-600 mt-2">
+                    Engedélyezd a kamera használatát a böngésző beállításaiban a QR-kódok beolvasásához.
+                  </p>
+                </div>
+              }
+
+              @if (hasPermission && availableDevices.length === 0 && !permissionDenied) {
+                <div class="text-center py-8 text-red-600">
+                  <i class="mdi mdi-camera-off text-2xl mx-auto mb-4 text-red-400 inline-block"></i>
+                  <p class="font-medium">Nem található kamera</p>
+                  <p class="text-sm text-gray-600 mt-2">
+                    Kérlek, ellenőrizd, hogy van-e kamera csatlakoztatva.
+                  </p>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Scan Result Preview -->
+          @if (lastScannedCode) {
+            <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div class="flex items-center">
+                <i class="mdi mdi-qrcode text-green-600 mr-2 inline-block"></i>
+                <span class="text-sm text-green-800 font-medium">Beolvasott kód: </span>
+                <code class="text-sm text-green-700">{{ lastScannedCode }}</code>
+              </div>
+            </div>
+          }
         </div>
+
+        <p class="text-xs text-gray-500 mt-2">Vagy írd be manuálisan a csapatkódot alább</p>
 
         <div class="relative">
           <div class="absolute inset-0 flex items-center">
             <div class="w-full border-t border-gray-300"></div>
           </div>
           <div class="relative flex justify-center text-sm">
-            <span class="px-2 bg-white text-gray-500">Manual Entry</span>
+            <span class="px-2 bg-white text-gray-500">Manuális megadás</span>
           </div>
         </div>
 
+        <!-- Team Code -->
         <div>
-          <label for="teamCode" class="label">Team Code</label>
+          <label for="teamCode" class="label">Csapatkód</label>
           <input
             id="teamCode"
             name="teamCode"
@@ -69,30 +137,28 @@
             class="input-field text-center text-lg font-mono tracking-widest uppercase"
           />
           <div class="mt-1 text-xs text-gray-500 text-center">
-            Enter the 6-character code from your QR code
+            Írd be a 6 karakteres kódot a QR-kódról
           </div>
+
           @if (hasError('teamCode', 'required')) {
-            <div class="mt-1 text-sm text-red-600">
-              Team code is required
-            </div>
+            <div class="mt-1 text-sm text-red-600">A csapatkód megadása kötelező</div>
           }
           @if (hasError('teamCode', 'minlength') || hasError('teamCode', 'maxlength')) {
-            <div
-              class="mt-1 text-sm text-red-600"
-            >
-              Team code must be exactly 6 characters
+            <div class="mt-1 text-sm text-red-600">
+              A csapatkódnak pontosan 6 karakterből kell állnia
             </div>
           }
         </div>
 
+        <!-- Team Name -->
         <div>
-          <label for="teamName" class="label">Your Team Name</label>
+          <label for="teamName" class="label">Csapat neve</label>
           <input
             id="teamName"
             name="teamName"
             type="text"
             formControlName="teamName"
-            placeholder="Team Dragons"
+            placeholder="Sárkányok csapata"
             [class.border-red-300]="
               hasError('teamName', 'required') ||
               hasError('teamName', 'minlength') ||
@@ -101,25 +167,25 @@
             class="input-field"
           />
           <div class="mt-1 text-xs text-gray-500">
-            Choose a fun name for your team (2-50 characters)
+            Adj egy vicces nevet a csapatodnak (2–50 karakter)
           </div>
+
           @if (hasError('teamName', 'required')) {
-            <div class="mt-1 text-sm text-red-600">
-              Team name is required
-            </div>
+            <div class="mt-1 text-sm text-red-600">A csapatnév megadása kötelező</div>
           }
           @if (hasError('teamName', 'minlength')) {
             <div class="mt-1 text-sm text-red-600">
-              Team name must be at least 2 characters
+              A csapatnévnek legalább 2 karakterből kell állnia
             </div>
           }
           @if (hasError('teamName', 'maxlength')) {
             <div class="mt-1 text-sm text-red-600">
-              Team name cannot exceed 50 characters
+              A csapatnév nem haladhatja meg az 50 karaktert
             </div>
           }
         </div>
 
+        <!-- Submit -->
         <button
           type="submit"
           [disabled]="!isFormValid || isLoading"
@@ -127,27 +193,20 @@
         >
           @if (!isLoading) {
             <span class="flex items-center">
-              <i class="mdi mdi-account-group h-5 w-5 mr-2 inline-block"></i>
-              Join Team
+              <i class="mdi mdi-account-group mr-2 inline-block"></i>
+              Csatlakozás a csapathoz
             </span>
           } @else {
             <span class="flex items-center">
-              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              Joining...
+              <div class="animate-spin rounded-full border-b-2 border-white mr-2"></div>
+              Csatlakozás...
             </span>
           }
         </button>
       </form>
 
       <div class="mt-8 text-center space-y-4">
-        <p class="text-xs text-gray-500">Need help? Contact your event organizer</p>
-
-        <button
-          (click)="navigateToAdminLogin()"
-          class="text-sm text-treasure-600 hover:text-treasure-500 font-medium"
-        >
-          Are you an event organizer? Admin Login →
-        </button>
+        <p class="text-xs text-gray-500">Segítségre van szükséged? Lépj kapcsolatba a szervezővel</p>
       </div>
     </div>
   </div>

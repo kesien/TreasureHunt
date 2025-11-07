@@ -1,23 +1,35 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth';
-import { LucideAngularModule } from 'lucide-angular';
+import {ZXingScannerComponent, ZXingScannerModule} from '@zxing/ngx-scanner';
+import {BarcodeFormat} from '@zxing/library';
 
 @Component({
   selector: 'app-join',
-  imports: [ReactiveFormsModule, LucideAngularModule],
+  imports: [ReactiveFormsModule, FormsModule, ZXingScannerModule],
   templateUrl: './join.component.html',
   styleUrl: './join.component.scss',
   standalone: true
 })
-export class JoinComponent implements OnInit {
+export class JoinComponent implements OnInit, OnDestroy {
+  @ViewChild('scanner', { static: false }) scanner!: ZXingScannerComponent;
   joinForm: FormGroup;
   isLoading = false;
   error: string | null = null;
   success: string | null = null;
   teamCode: string | null = null;
   showQrScanner = false;
+
+  scannerEnabled = false;
+  hasPermission = false;
+  permissionDenied = false;
+  availableDevices: MediaDeviceInfo[] = [];
+  selectedDevice: MediaDeviceInfo | undefined;
+  lastScannedCode: string | null = null;
+
+  // QR Code formats to scan
+  allowedFormats = [BarcodeFormat.QR_CODE];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -38,6 +50,111 @@ export class JoinComponent implements OnInit {
       this.joinForm.patchValue({ teamCode: this.teamCode });
       this.success = 'Team code scanned successfully! Enter your team name to continue.';
     }
+  }
+
+  ngOnDestroy() {
+    if (this.scannerEnabled) {
+      this.toggleScanner();
+    }
+  }
+
+  toggleScanner(): void {
+    if (this.scannerEnabled) {
+      this.scannerEnabled = false;
+      this.hasPermission = false;
+      this.permissionDenied = false;
+    } else {
+      this.scannerEnabled = true;
+      this.error = null;
+    }
+
+  }
+
+  onCamerasFound(devices: MediaDeviceInfo[]): void {
+    this.availableDevices = devices;
+    this.hasPermission = true;
+
+    // Select the back camera by default if available
+    const backCamera = devices.find(device =>
+      device.label.toLowerCase().includes('back') ||
+      device.label.toLowerCase().includes('rear') ||
+      device.label.toLowerCase().includes('environment')
+    );
+
+    this.selectedDevice = backCamera || devices[0];
+  }
+
+  onCamerasNotFound(): void {
+    this.hasPermission = false;
+    this.availableDevices = [];
+    this.error = 'No cameras found on this device.';
+  }
+
+  onPermissionResponse(permission: boolean): void {
+    this.hasPermission = permission;
+    if (!permission) {
+      this.permissionDenied = true;
+      this.error = 'Camera permission is required to scan QR codes.';
+    }
+  }
+
+  onDeviceChange(deviceId: MediaDeviceInfo): void {
+    this.selectedDevice = deviceId;
+  }
+
+  onScanSuccess(result: string): void {
+    this.lastScannedCode = result;
+    this.error = null;
+
+    // Try to extract team code from QR code
+    // Expected format: https://yourapp.com/join/{teamCode} or just the team code
+    const teamCode = this.extractTeamCodeFromQR(result);
+
+    if (teamCode) {
+      // Auto-fill the form with scanned code
+      this.joinForm.patchValue({
+        teamCode: teamCode
+      });
+
+      // Focus on team name field for user convenience
+      const teamNameField = document.getElementById('teamName') as HTMLInputElement;
+      if (teamNameField) {
+        setTimeout(() => teamNameField.focus(), 100);
+      }
+
+      // Stop scanner after successful scan
+      this.toggleScanner();
+    } else {
+      this.error = 'Invalid QR code format. Please scan a valid team QR code.';
+    }
+  }
+
+  onScanError(error: any): void {
+    console.warn('QR scan error:', error);
+    // Don't show errors for scan failures - they're expected during scanning
+  }
+
+  onScanFailure(error: any): void {
+    // This is called when no QR code is detected - normal behavior
+    // Don't show error messages for this
+  }
+
+  private extractTeamCodeFromQR(qrContent: string): string | null {
+    // Handle different QR code formats
+    if (qrContent.includes('/join/')) {
+      // Extract from URL format: https://yourapp.com/join/{teamCode}
+      const match = qrContent.match(/\/join\/([^/?]+)/);
+      return match ? match[1] : null;
+    } else if (qrContent.includes('teamCode=')) {
+      // Extract from parameter format: ?teamCode=ABC123
+      const match = qrContent.match(/teamCode=([^&]+)/);
+      return match ? match[1] : null;
+    } else if (/^[A-Za-z0-9]{3,20}$/.test(qrContent.trim())) {
+      // Assume it's a direct team code if it matches expected format
+      return qrContent.trim();
+    }
+
+    return null;
   }
 
   onSubmit(): void {

@@ -4,6 +4,9 @@
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
+  "permissions": [
+    "camera"
+  ],
   "icons": [
     {
       "src": "icons/icon-72x72.png",

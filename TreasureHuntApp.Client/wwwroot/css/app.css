@@ -1,0 +1,93 @@
+/* TreasureHunt App egyéni stílusok */
+html, body {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* PWA specifikus stílusok */
+@media screen and (max-width: 768px) {
+    .mud-drawer {
+        width: 280px !important;
+    }
+
+    .mud-main-content {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .mud-container {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+}
+
+/* Kártya animációk */
+.mud-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+    .mud-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08) !important;
+    }
+
+/* Fõoldal specifikus stílusok */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+/* Mobil optimalizációk */
+@media screen and (max-width: 600px) {
+    .mud-typography-h3 {
+        font-size: 1.8rem !important;
+    }
+
+    .mud-typography-h6 {
+        font-size: 1.1rem !important;
+    }
+
+    .mud-card .mud-card-content {
+        padding: 12px !important;
+    }
+}
+
+/* Loading animáció */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-spinner {
+    animation: spin 2s linear infinite;
+}
+
+/* Egyéni színek */
+:root {
+    --treasurehunt-primary: #512da8;
+    --treasurehunt-secondary: #ff4081;
+    --treasurehunt-success: #4caf50;
+    --treasurehunt-warning: #ff9800;
+    --treasurehunt-error: #f44336;
+}
+
+/* Navigációs menü finomhangolás */
+.mud-nav-group .mud-nav-link {
+    padding-left: 32px !important;
+}
+
+/* Gomb stílusok */
+.mud-button-root {
+    transition: all 0.2s ease-in-out;
+}
+
+    .mud-button-root:hover {
+        transform: translateY(-1px);
+    }

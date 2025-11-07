@@ -1,0 +1,127 @@
+﻿@page "/admin/login"
+@using TreasureHuntApp.Blazor.Client.Layout
+@using TreasureHuntApp.Client.Services
+@using TreasureHuntApp.Shared.DTOs
+@layout MainLayout
+@inject IAdminAuthService AdminAuthService
+@inject INotificationService NotificationService
+@inject NavigationManager Navigation
+
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-16">
+    <MudCard Elevation="8" Class="pa-8">
+        <MudCardContent>
+            <div class="d-flex flex-column align-center mb-6">
+                <MudIcon Icon="@Icons.Material.Filled.AdminPanelSettings"
+                         Size="Size.Large"
+                         Color="Color.Primary"
+                         Class="mb-4" />
+                <MudText Typo="Typo.h4" Class="mb-2">Admin Bejelentkezés</MudText>
+                <MudText Typo="Typo.body1" Color="Color.Secondary">
+                    TreasureHunt Eseménykezelő Rendszer
+                </MudText>
+            </div>
+
+            <MudForm @ref="loginForm" @bind-IsValid="@_formValid">
+                <MudTextField @bind-Value="loginRequest.Username"
+                              Label="Felhasználónév"
+                              Variant="Variant.Outlined"
+                              Required="true"
+                              RequiredError="Felhasználónév megadása kötelező"
+                              Class="mb-4"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Person" />
+
+                <MudTextField @bind-Value="loginRequest.Password"
+                              Label="Jelszó"
+                              InputType="InputType.Password"
+                              Variant="Variant.Outlined"
+                              Required="true"
+                              RequiredError="Jelszó megadása kötelező"
+                              Class="mb-6"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Lock" />
+
+                <MudButton ButtonType="ButtonType.Submit"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           FullWidth="true"
+                           Disabled="@(!_formValid || _isLoading)"
+                           OnClick="@HandleLoginAsync"
+                           Class="mb-4">
+                    @if (_isLoading)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                        <MudText Class="ms-2">Bejelentkezés...</MudText>
+                    }
+                    else
+                    {
+                        <MudText>Bejelentkezés</MudText>
+                    }
+                </MudButton>
+            </MudForm>
+
+            @if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <MudAlert Severity="Severity.Error" Class="mt-4">
+                    @_errorMessage
+                </MudAlert>
+            }
+        </MudCardContent>
+    </MudCard>
+
+    <MudText Typo="Typo.caption" Align="Center" Class="mt-4" Color="Color.Secondary">
+        TreasureHunt App v1.0 - Admin Panel
+    </MudText>
+</MudContainer>
+
+@code {
+    private MudForm loginForm = null!;
+    private AdminLoginRequest loginRequest = new();
+    private bool _formValid;
+    private bool _isLoading;
+    private string _errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var isAuthenticated = await AdminAuthService.IsAuthenticatedAsync();
+        if (isAuthenticated)
+        {
+            Navigation.NavigateTo("/admin/dashboard");
+        }
+    }
+
+    private async Task HandleLoginAsync()
+    {
+        if (!_formValid) return;
+
+        _isLoading = true;
+        _errorMessage = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            var result = await AdminAuthService.LoginAsync(loginRequest);
+
+            if (result.Success && result.Data != null)
+            {
+                NotificationService.ShowSuccess("Sikeres bejelentkezés!");
+                Navigation.NavigateTo("/admin/dashboard");
+            }
+            else
+            {
+                _errorMessage = result.ErrorMessage ?? "Bejelentkezési hiba történt";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Hálózati hiba: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

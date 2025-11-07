@@ -1,15 +1,14 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import {NavigationEnd, Router, RouterLink, RouterOutlet} from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { Subject, filter, takeUntil } from 'rxjs';
 import { AuthState, AuthService } from './services/auth';
-import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, LucideAngularModule, RouterLink],
+  imports: [RouterOutlet, RouterLink],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
-  standalone: true
+  standalone: true,
 })
 export class AppComponent {
   title = 'TreasureHunt';
@@ -17,6 +16,48 @@ export class AppComponent {
   currentRoute = '';
   showNavigation = false;
   mobileMenuOpen = false;
+
+  get menuItems() {
+    if (this.isAdmin) {
+      return [
+        {
+          label: 'Dashboard',
+          icon: 'pi pi-home',
+          routerLink: '/admin/dashboard',
+          visible: true,
+        },
+        {
+          label: 'Events',
+          icon: 'pi pi-calendar',
+          routerLink: '/admin/events',
+          visible: true,
+        },
+      ];
+    } else if (this.isTeam) {
+      return [
+        {
+          label: 'Progress',
+          icon: 'pi pi-clock',
+          routerLink: '/team/dashboard',
+          visible: true,
+        },
+        {
+          label: 'Map',
+          icon: 'pi pi-map',
+          routerLink: '/team/map',
+          visible: true,
+        },
+        {
+          label: 'Photos',
+          icon: 'pi pi-camera',
+          routerLink: '/team/photos',
+          visible: true,
+        },
+      ];
+    } else {
+      return [];
+    }
+  }
 
   private destroy$ = new Subject<void>();
 
@@ -36,10 +77,11 @@ export class AppComponent {
 
   ngOnInit() {
     this.authService.authState$.pipe(takeUntil(this.destroy$)).subscribe((authState) => {
+      console.log(authState);
+
       this.authState = authState;
       this.updateNavigationVisibility();
     });
-
     setInterval(() => {
       this.authService.checkTokenExpiry();
     }, 60000);

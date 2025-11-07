@@ -1,0 +1,252 @@
+﻿@page "/admin/events"
+@using MudBlazor
+@using TreasureHuntApp.Client.Models
+@using TreasureHuntApp.Client.Services.Api
+@using TreasureHuntApp.Client.Services.Utilities
+@using TreasureHuntApp.Core.Entities
+@using TreasureHuntApp.Shared.DTOs
+@layout AdminLayout
+@inject IEventService EventService
+@inject INotificationService NotificationService
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
+
+<div class="d-flex justify-space-between align-center mb-6">
+    <div>
+        <MudText Typo="Typo.h3">Események</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">
+            Kincskeresés események kezelése
+        </MudText>
+    </div>
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="@OpenCreateDialog">
+        Új Esemény
+    </MudButton>
+</div>
+
+@if (_isLoading)
+{
+    <div class="d-flex justify-center my-8">
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    </div>
+}
+else
+{
+    <MudCard>
+        <MudCardContent>
+            <MudDataGrid @ref="dataGrid"
+                         Items="@_events"
+                         Hover="true"
+                         Striped="true"
+                         FixedHeader="true"
+                         Height="600px"
+                         Loading="@_isLoading"
+                         LoadingProgressColor="Color.Info">
+                <Columns>
+                    <PropertyColumn Property="x => x.Name" Title="Esemény Neve">
+                        <CellTemplate>
+                            <div class="d-flex align-center">
+                                <MudIcon Icon="@Icons.Material.Filled.Event"
+                                         Size="Size.Small"
+                                         Class="mr-2" />
+                                <MudText Typo="Typo.body2" Class="font-weight-medium">
+                                    @context.Item.Name
+                                </MudText>
+                            </div>
+                        </CellTemplate>
+                    </PropertyColumn>
+
+                    <PropertyColumn Property="x => x.EventType" Title="Típus">
+                        <CellTemplate>
+                            <MudChip Size="Size.Small"
+                                     Color="Color.Success"
+                                     Icon="Icons.Material.Filled.Egg">
+                                Húsvét
+                            </MudChip>
+                        </CellTemplate>
+                    </PropertyColumn>
+
+                    <PropertyColumn Property="x => x.Status" Title="Állapot">
+                        <CellTemplate>
+                            <MudChip Size="Size.Small"
+                                     Color="@GetStatusColor(context.Item.Status)">
+                                @GetStatusText(context.Item.Status)
+                            </MudChip>
+                        </CellTemplate>
+                    </PropertyColumn>
+
+                    <PropertyColumn Property="x => x.StartTime" Title="Kezdés" Format="yyyy.MM.dd HH:mm" />
+                    <PropertyColumn Property="x => x.EndTime" Title="Befejezés" Format="yyyy.MM.dd HH:mm" />
+
+                    <PropertyColumn Property="x => x.TeamCount" Title="Csapatok">
+                        <CellTemplate>
+                            <div class="d-flex align-center">
+                                <MudIcon Icon="@Icons.Material.Filled.Group"
+                                         Size="Size.Small"
+                                         Class="mr-1" />
+                                @context.Item.TeamCount
+                            </div>
+                        </CellTemplate>
+                    </PropertyColumn>
+
+                    <PropertyColumn Property="x => x.LocationCount" Title="Helyszínek">
+                        <CellTemplate>
+                            <div class="d-flex align-center">
+                                <MudIcon Icon="@Icons.Material.Filled.LocationOn"
+                                         Size="Size.Small"
+                                         Class="mr-1" />
+                                @context.Item.LocationCount
+                            </div>
+                        </CellTemplate>
+                    </PropertyColumn>
+
+                    <TemplateColumn Title="Műveletek" Sortable="false">
+                        <CellTemplate>
+                            <div class="d-flex ga-2">
+                                <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                               Size="Size.Small"
+                                               Color="Color.Primary"
+                                               Title="Részletek"
+                                               OnClick="@(() => ViewDetails(context.Item.Id))" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                               Size="Size.Small"
+                                               Color="Color.Info"
+                                               Title="Szerkesztés"
+                                               OnClick="@(() => EditEvent(context.Item))" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                               Size="Size.Small"
+                                               Color="Color.Error"
+                                               Title="Törlés"
+                                               OnClick="@(() => DeleteEvent(context.Item))" />
+                            </div>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+
+                <NoRecordsContent>
+                    <div class="d-flex flex-column align-center pa-8">
+                        <MudIcon Icon="@Icons.Material.Filled.EventNote"
+                                 Size="Size.Large"
+                                 Color="Color.Secondary" />
+                        <MudText Typo="Typo.h6" Color="Color.Secondary" Class="mt-4">
+                            Még nincs esemény
+                        </MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            Hozza létre az első eseményt a "Új Esemény" gombbal.
+                        </MudText>
+                    </div>
+                </NoRecordsContent>
+            </MudDataGrid>
+        </MudCardContent>
+    </MudCard>
+}
+
+@code {
+    private MudDataGrid<EventResponse> dataGrid = null!;
+    private List<EventResponse> _events = new();
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEventsAsync();
+    }
+
+    private async Task LoadEventsAsync()
+    {
+        _isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var response = await EventService.GetEventsAsync();
+            if (response.Success && response.Data != null)
+            {
+                _events = response.Data;
+            }
+            else
+            {
+                NotificationService.ShowError(response.ErrorMessage ?? "Nem sikerült betölteni az eseményeket");
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationService.ShowError($"Hiba történt: {ex.Message}");
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private Color GetStatusColor(EventStatus status)
+    {
+        return status switch
+        {
+            EventStatus.Created => Color.Info,
+            EventStatus.Active => Color.Success,
+            EventStatus.Finished => Color.Warning,
+            _ => Color.Default
+        };
+    }
+
+    private string GetStatusText(EventStatus status)
+    {
+        return status switch
+        {
+            EventStatus.Created => "Ütemezett",
+            EventStatus.Active => "Aktív",
+            EventStatus.Finished => "Befejezett",
+            _ => "Ismeretlen"
+        };
+    }
+
+    private void ViewDetails(int eventId)
+    {
+        Navigation.NavigateTo($"/admin/events/{eventId}");
+    }
+
+    private void OpenCreateDialog()
+    {
+        // Itt nyílna meg a létrehozási dialog - következő fázisban implementáljuk
+        NotificationService.ShowInfo("Esemény létrehozás - következő fázisban implementáljuk");
+    }
+
+    private void EditEvent(EventResponse eventItem)
+    {
+        // Itt nyílna meg a szerkesztési dialog - következő fázisban implementáljuk
+        NotificationService.ShowInfo($"Esemény szerkesztés: {eventItem.Name} - következő fázisban implementáljuk");
+    }
+
+    private async Task DeleteEvent(EventResponse eventItem)
+    {
+        var result = await DialogService.ShowMessageBox(
+            "Esemény törlése",
+            $"Biztos, hogy törölni szeretné a '{eventItem.Name}' eseményt? Ez a művelet nem visszavonható!",
+            yesText: "Törlés",
+            cancelText: "Mégse");
+
+        if (result == true)
+        {
+            try
+            {
+                var response = await EventService.DeleteEventAsync(eventItem.Id);
+                if (response.Success)
+                {
+                    NotificationService.ShowSuccess("Esemény sikeresen törölve");
+                    await LoadEventsAsync();
+                }
+                else
+                {
+                    NotificationService.ShowError(response.ErrorMessage ?? "Nem sikerült törölni az eseményt");
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.ShowError($"Hiba történt: {ex.Message}");
+            }
+        }
+    }
+}

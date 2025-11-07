@@ -5,10 +5,10 @@ export interface EventModel {
   id: number;
   name: string;
   description: string;
-  startTime: Date;
-  endTime: Date;
+  startTime: string;
+  endTime: string;
   eventType: 'Easter' | 'Halloween';
-  status: 'Scheduled' | 'Active' | 'Completed';
+  status: 'Created' | 'Active' | 'Finished';
   teamTrackingEnabled: boolean;
   locationCount: number;
   teamCount: number;
@@ -28,6 +28,23 @@ export interface CreateEventRequest {
 export interface EventStats {
   totalEvents: number;
   activeEvents: number;
+  upcomingEvents: number;
+  activeTeams: number;
   totalTeams: number;
   completedEvents: number;
+}
+
+// Dashboard-specific aggregated stats
+export interface DashboardStats {
+  totalEvents: number;
+  activeEvents: number;
+  totalTeams: number;
+  totalLocations: number;
+  completedTreasureHunts: number;
+  averageCompletionRate: number;
+  recentActivity?: {
+    teamJoins: number;
+    locationsVisited: number;
+    eventsCreated: number;
+  };
 }

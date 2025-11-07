@@ -51,6 +51,7 @@ export class LoginComponent implements OnInit {
     this.authService.adminLogin(credentials).subscribe({
       next: (response) => {
         console.log('Admin login successful', response);
+        console.log(this.returnUrl)
         this.router.navigate([this.returnUrl]);
       },
       error: (error) => {
