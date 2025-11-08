@@ -1,11 +1,12 @@
-﻿using TreasureHuntApp.Shared.DTOs;
+﻿using TreasureHuntApp.Shared.DTOs.Events;
+using TreasureHuntApp.Shared.DTOs.Locations;
+using TreasureHuntApp.Shared.DTOs.Teams;
 
 namespace TreasureHuntApp.Infrastructure.Services;
 public interface IEventService
 {
     // Event CRUD operations
     Task<EventResponse> CreateEventAsync(CreateEventRequest request);
-    Task<EventResponse?> GetEventAsync(int eventId);
     Task<EventDetailResponse?> GetEventDetailAsync(int eventId);
     Task<List<EventResponse>> GetEventsAsync();
     Task<EventResponse?> UpdateEventAsync(int eventId, UpdateEventRequest request);

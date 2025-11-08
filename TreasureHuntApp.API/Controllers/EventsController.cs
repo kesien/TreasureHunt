@@ -1,39 +1,31 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TreasureHuntApp.API.Attributes;
 using TreasureHuntApp.Infrastructure.Services;
-using TreasureHuntApp.Shared.DTOs;
+using TreasureHuntApp.Shared.DTOs.Events;
+using TreasureHuntApp.Shared.DTOs.Locations;
+using TreasureHuntApp.Shared.DTOs.Teams;
 
 namespace TreasureHuntApp.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-[AdminAuthorize] // All endpoints require admin authentication
-public class EventsController : ControllerBase
+[AdminAuthorize]
+public class EventsController(IEventService eventService) : ControllerBase
 {
-    private readonly IEventService _eventService;
-
-    public EventsController(IEventService eventService)
-    {
-        _eventService = eventService;
-    }
-
-    // GET: api/events
     [HttpGet]
     public async Task<ActionResult<List<EventResponse>>> GetEvents()
     {
-        var events = await _eventService.GetEventsAsync();
+        var events = await eventService.GetEventsAsync();
         return Ok(events);
     }
 
-    // GET: api/events/5
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<EventDetailResponse>> GetEvent(int id)
     {
-        var eventDetail = await _eventService.GetEventDetailAsync(id);
+        var eventDetail = await eventService.GetEventDetailAsync(id);
 
-        return eventDetail == null ? (ActionResult<EventDetailResponse>)NotFound($"Event with ID {id} not found") : (ActionResult<EventDetailResponse>)Ok(eventDetail);
+        return eventDetail is null ? NotFound($"Event with ID {id} not found") : Ok(eventDetail);
     }
 
-    // POST: api/events
     [HttpPost]
     public async Task<ActionResult<EventResponse>> CreateEvent([FromBody] CreateEventRequest request)
     {
@@ -47,14 +39,14 @@ public class EventsController : ControllerBase
             return BadRequest("Start time must be before end time");
         }
 
-        if (request.StartTime < DateTime.UtcNow.AddMinutes(-5)) // Allow 5 minute grace period
+        if (request.StartTime < DateTime.UtcNow.AddMinutes(-5))
         {
             return BadRequest("Start time cannot be in the past");
         }
 
         try
         {
-            var eventResponse = await _eventService.CreateEventAsync(request);
+            var eventResponse = await eventService.CreateEventAsync(request);
             return CreatedAtAction(nameof(GetEvent), new { id = eventResponse.Id }, eventResponse);
         }
         catch (Exception ex)
@@ -63,8 +55,7 @@ public class EventsController : ControllerBase
         }
     }
 
-    // PUT: api/events/5
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<ActionResult<EventResponse>> UpdateEvent(int id, [FromBody] UpdateEventRequest request)
     {
         if (!ModelState.IsValid)
@@ -77,64 +68,57 @@ public class EventsController : ControllerBase
             return BadRequest("Start time must be before end time");
         }
 
-        var updatedEvent = await _eventService.UpdateEventAsync(id, request);
+        var updatedEvent = await eventService.UpdateEventAsync(id, request);
 
-        return updatedEvent == null ? (ActionResult<EventResponse>)NotFound($"Event with ID {id} not found or cannot be updated") : (ActionResult<EventResponse>)Ok(updatedEvent);
+        return updatedEvent is null ? NotFound($"Event with ID {id} not found or cannot be updated") : Ok(updatedEvent);
     }
 
-    // DELETE: api/events/5
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<ActionResult> DeleteEvent(int id)
     {
-        var success = await _eventService.DeleteEventAsync(id);
+        var success = await eventService.DeleteEventAsync(id);
 
         return !success ? NotFound($"Event with ID {id} not found or cannot be deleted") : NoContent();
     }
 
-    // POST: api/events/5/start
-    [HttpPost("{id}/start")]
+    [HttpPost("{id:int}/start")]
     public async Task<ActionResult> StartEvent(int id)
     {
-        var success = await _eventService.StartEventAsync(id);
+        var success = await eventService.StartEventAsync(id);
 
         return !success ? BadRequest($"Event with ID {id} cannot be started") : Ok(new { message = "Event started successfully" });
     }
 
-    // POST: api/events/5/end
-    [HttpPost("{id}/end")]
+    [HttpPost("{id:int}/end")]
     public async Task<ActionResult> EndEvent(int id)
     {
-        var success = await _eventService.EndEventAsync(id);
+        var success = await eventService.EndEventAsync(id);
 
         return !success ? BadRequest($"Event with ID {id} cannot be ended") : Ok(new { message = "Event ended successfully" });
     }
 
-    // GET: api/events/stats
     [HttpGet("stats")]
     public async Task<ActionResult<EventStatsResponse>> GetEventStats()
     {
-        var stats = await _eventService.GetEventStatsAsync();
+        var stats = await eventService.GetEventStatsAsync();
         return Ok(stats);
     }
 
-    // GET: api/events/5/teams
-    [HttpGet("{id}/teams")]
+    [HttpGet("{id:int}/teams")]
     public async Task<ActionResult<List<TeamResponse>>> GetEventTeams(int id)
     {
-        var teams = await _eventService.GetEventTeamsAsync(id);
+        var teams = await eventService.GetEventTeamsAsync(id);
         return Ok(teams);
     }
 
-    // GET: api/events/5/teams/progress
-    [HttpGet("{id}/teams/progress")]
+    [HttpGet("{id:int}/teams/progress")]
     public async Task<ActionResult<List<TeamResponse>>> GetEventTeamProgress(int id)
     {
-        var teams = await _eventService.GetEventTeamProgressAsync(id);
+        var teams = await eventService.GetEventTeamProgressAsync(id);
         return Ok(teams);
     }
 
-    // POST: api/events/5/teams
-    [HttpPost("{id}/teams")]
+    [HttpPost("{id:int}/teams")]
     public async Task<ActionResult<TeamResponse>> CreateTeam(int id, [FromBody] CreateTeamRequest request)
     {
         if (!ModelState.IsValid)
@@ -142,12 +126,11 @@ public class EventsController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        // Ensure the team is created for the correct event
         request.EventId = id;
 
         try
         {
-            var team = await _eventService.CreateTeamAsync(request);
+            var team = await eventService.CreateTeamAsync(request);
             return CreatedAtAction(nameof(GetEvent), new { id = team.Id }, team);
         }
         catch (Exception ex)
@@ -156,25 +139,22 @@ public class EventsController : ControllerBase
         }
     }
 
-    // DELETE: api/events/teams/5
-    [HttpDelete("teams/{teamId}")]
+    [HttpDelete("teams/{teamId:int}")]
     public async Task<ActionResult> DeleteTeam(int teamId)
     {
-        var success = await _eventService.DeleteTeamAsync(teamId);
+        var success = await eventService.DeleteTeamAsync(teamId);
 
         return !success ? NotFound($"Team with ID {teamId} not found") : NoContent();
     }
 
-    // GET: api/events/5/locations
-    [HttpGet("{id}/locations")]
+    [HttpGet("{id:int}/locations")]
     public async Task<ActionResult<List<LocationResponse>>> GetEventLocations(int id)
     {
-        var locations = await _eventService.GetEventLocationsAsync(id);
+        var locations = await eventService.GetEventLocationsAsync(id);
         return Ok(locations);
     }
 
-    // POST: api/events/5/locations
-    [HttpPost("{id}/locations")]
+    [HttpPost("{id:int}/locations")]
     public async Task<ActionResult<LocationResponse>> AddLocationToEvent(int id, [FromBody] CreateLocationRequest request)
     {
         if (!ModelState.IsValid)
@@ -184,7 +164,7 @@ public class EventsController : ControllerBase
 
         try
         {
-            var location = await _eventService.AddLocationToEventAsync(id, request);
+            var location = await eventService.AddLocationToEventAsync(id, request);
             return Ok(location);
         }
         catch (Exception ex)
@@ -193,8 +173,7 @@ public class EventsController : ControllerBase
         }
     }
 
-    // PUT: api/events/locations/5
-    [HttpPut("locations/{locationId}")]
+    [HttpPut("locations/{locationId:int}")]
     public async Task<ActionResult<LocationResponse>> UpdateLocation(int locationId, [FromBody] CreateLocationRequest request)
     {
         if (!ModelState.IsValid)
@@ -202,16 +181,15 @@ public class EventsController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var updatedLocation = await _eventService.UpdateLocationAsync(locationId, request);
+        var updatedLocation = await eventService.UpdateLocationAsync(locationId, request);
 
-        return updatedLocation == null ? (ActionResult<LocationResponse>)NotFound($"Location with ID {locationId} not found") : (ActionResult<LocationResponse>)Ok(updatedLocation);
+        return updatedLocation is null ? NotFound($"Location with ID {locationId} not found") : Ok(updatedLocation);
     }
 
-    // DELETE: api/events/locations/5
-    [HttpDelete("locations/{locationId}")]
+    [HttpDelete("locations/{locationId:int}")]
     public async Task<ActionResult> DeleteLocation(int locationId)
     {
-        var success = await _eventService.DeleteLocationAsync(locationId);
+        var success = await eventService.DeleteLocationAsync(locationId);
 
         return !success ? NotFound($"Location with ID {locationId} not found") : NoContent();
     }

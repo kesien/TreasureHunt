@@ -14,8 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IRoutingService, RoutingService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
@@ -23,30 +21,25 @@ builder.Services.AddScoped<ITeamCodeGenerator, TeamCodeGenerator>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddHostedService<EventStatusBackgroundService>();
 
-// Database
 builder.Services.AddDbContext<TreasureHuntDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        b => b.MigrationsAssembly("TreasureHuntApp.API"))); // Migration az API projektben lesz
+        b => b.MigrationsAssembly(nameof(TreasureHuntApp.API))));
 
-// Identity
 builder.Services.AddIdentity<UserEntity, IdentityRole>(options =>
 {
-    // Password settings
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 6;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
     options.Password.RequireNonAlphanumeric = false;
 
-    // User settings
     options.User.RequireUniqueEmail = true;
     options.SignIn.RequireConfirmedEmail = false;
 })
 .AddEntityFrameworkStores<TreasureHuntDbContext>()
 .AddDefaultTokenProviders();
 
-// JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
 
@@ -69,7 +62,6 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
 
-    // SignalR token from query string
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
@@ -88,11 +80,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// Controllers & SignalR
 builder.Services.AddControllers().AddJsonOptions(opt => opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddSignalR();
 
-// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
@@ -104,16 +94,13 @@ builder.Services.AddCors(options =>
     });
 });
 
-// HTTP Client for OSRM
 builder.Services.AddHttpClient();
 
-// Learn more about configuring Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -132,7 +119,6 @@ app.UseCors("AllowAngularApp");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Static files for photos
 app.UseStaticFiles();
 
 app.MapControllers();

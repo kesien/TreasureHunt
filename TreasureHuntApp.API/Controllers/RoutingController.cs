@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TreasureHuntApp.Infrastructure.Services;
-using TreasureHuntApp.Shared.DTOs;
+using TreasureHuntApp.Shared.DTOs.Routes;
 
 namespace TreasureHuntApp.API.Controllers;
 [ApiController]
@@ -17,7 +17,7 @@ public class RoutingController(IRoutingService routingService) : ControllerBase
 
         var result = await routingService.GetRouteAsync(request);
 
-        return !result.Success ? (ActionResult<RouteResponseDto>)BadRequest(result) : (ActionResult<RouteResponseDto>)Ok(result);
+        return !result.Success ? BadRequest(result) : Ok(result);
     }
 
     [HttpPost("optimized-route")]
@@ -30,7 +30,7 @@ public class RoutingController(IRoutingService routingService) : ControllerBase
 
         var result = await routingService.GetOptimizedRouteAsync(request);
 
-        return !result.Success ? (ActionResult<OptimizedRouteResponseDto>)BadRequest(result) : (ActionResult<OptimizedRouteResponseDto>)Ok(result);
+        return !result.Success ? BadRequest(result) : Ok(result);
     }
 
     [HttpGet("health/{mode}")]

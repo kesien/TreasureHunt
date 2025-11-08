@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text.Json;
 using TreasureHuntApp.Shared.DTOs;
+using TreasureHuntApp.Shared.DTOs.Routes;
 
 namespace TreasureHuntApp.Infrastructure.Services;
 

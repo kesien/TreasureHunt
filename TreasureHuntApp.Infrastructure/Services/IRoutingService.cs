@@ -1,4 +1,4 @@
-﻿using TreasureHuntApp.Shared.DTOs;
+﻿using TreasureHuntApp.Shared.DTOs.Routes;
 
 namespace TreasureHuntApp.Infrastructure.Services;
 public interface IRoutingService

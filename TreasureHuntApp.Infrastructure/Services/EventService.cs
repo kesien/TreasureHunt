@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TreasureHuntApp.Core.Entities;
 using TreasureHuntApp.Infrastructure.Data;
-using TreasureHuntApp.Shared.DTOs;
+using TreasureHuntApp.Shared.DTOs.Events;
+using TreasureHuntApp.Shared.DTOs.Locations;
+using TreasureHuntApp.Shared.DTOs.Teams;
 
 namespace TreasureHuntApp.Infrastructure.Services;
 public class EventService(TreasureHuntDbContext context, ITeamCodeGenerator teamCodeGenerator)
@@ -48,16 +50,6 @@ public class EventService(TreasureHuntDbContext context, ITeamCodeGenerator team
         }
 
         return MapToEventResponse(eventEntity);
-    }
-
-    public async Task<EventResponse?> GetEventAsync(int eventId)
-    {
-        var eventEntity = await context.Events
-            .Include(e => e.Teams)
-            .Include(e => e.Locations)
-            .FirstOrDefaultAsync(e => e.Id == eventId);
-
-        return eventEntity == null ? null : MapToEventResponse(eventEntity);
     }
 
     public async Task<EventDetailResponse?> GetEventDetailAsync(int eventId)
@@ -160,7 +152,7 @@ public class EventService(TreasureHuntDbContext context, ITeamCodeGenerator team
     public async Task<bool> StartEventAsync(int eventId)
     {
         var eventEntity = await context.Events.FindAsync(eventId);
-        if (eventEntity == null || eventEntity.Status != EventStatus.Created)
+        if (eventEntity is not { Status: EventStatus.Created })
         {
             return false;
         }
@@ -189,7 +181,6 @@ public class EventService(TreasureHuntDbContext context, ITeamCodeGenerator team
     {
         var now = DateTime.UtcNow;
 
-        // Start scheduled events
         var eventsToStart = await context.Events
             .Where(e => e.Status == EventStatus.Created && e.StartTime <= now)
             .ToListAsync();
@@ -199,7 +190,6 @@ public class EventService(TreasureHuntDbContext context, ITeamCodeGenerator team
             eventEntity.Status = EventStatus.Active;
         }
 
-        // End active events (1 hour after end time as per requirements)
         var eventsToEnd = await context.Events
             .Where(e => e.Status == EventStatus.Active && e.EndTime.AddHours(1) <= now)
             .ToListAsync();
@@ -362,7 +352,6 @@ public class EventService(TreasureHuntDbContext context, ITeamCodeGenerator team
                    .ToList();
     }
 
-    // Private helper methods
     private static EventResponse MapToEventResponse(EventEntity eventEntity)
     {
         return new EventResponse

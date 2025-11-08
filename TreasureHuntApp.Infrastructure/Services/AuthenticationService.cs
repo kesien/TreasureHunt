@@ -7,27 +7,17 @@ using System.Security.Claims;
 using System.Text;
 using TreasureHuntApp.Core.Entities;
 using TreasureHuntApp.Infrastructure.Data;
-using TreasureHuntApp.Shared.DTOs;
+using TreasureHuntApp.Shared.DTOs.Authentication;
 
 namespace TreasureHuntApp.Infrastructure.Services;
-public class AuthenticationService : IAuthenticationService
+public class AuthenticationService(TreasureHuntDbContext context, IConfiguration configuration) : IAuthenticationService
 {
-    private readonly TreasureHuntDbContext _context;
-    private readonly IConfiguration _configuration;
-    private readonly string _jwtSecret;
-    private readonly string _jwtIssuer;
-
-    public AuthenticationService(TreasureHuntDbContext context, IConfiguration configuration)
-    {
-        _context = context;
-        _configuration = configuration;
-        _jwtSecret = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Secret not configured");
-        _jwtIssuer = _configuration["Jwt:Issuer"] ?? "TreasureHuntApp";
-    }
+    private string? JwtSecret => configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Secret not configured");
+    private string? JwtIssuer => configuration["Jwt:Issuer"] ?? "TreasureHuntApp";
 
     public async Task<AdminLoginResponse?> LoginAdminAsync(string username, string password)
     {
-        var user = await _context.Users
+        var user = await context.Users
             .FirstOrDefaultAsync(u => u.UserName == username);
 
         if (user == null)
@@ -35,7 +25,6 @@ public class AuthenticationService : IAuthenticationService
             return null;
         }
 
-        // Use Identity's password hasher for verification
         var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<UserEntity>();
         var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash ?? "", password);
 
@@ -45,7 +34,7 @@ public class AuthenticationService : IAuthenticationService
         }
 
         var token = GenerateJwtToken(user);
-        var expiresAt = DateTime.UtcNow.AddHours(8); // 8 hour expiry
+        var expiresAt = DateTime.UtcNow.AddHours(8);
 
         return new AdminLoginResponse
         {
@@ -57,7 +46,7 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<TeamJoinResponse?> JoinTeamAsync(string teamCode, string? teamName = null)
     {
-        var team = await _context.Teams
+        var team = await context.Teams
             .Include(t => t.Event)
             .FirstOrDefaultAsync(t => t.AccessCode == teamCode.ToUpper());
 
@@ -66,33 +55,30 @@ public class AuthenticationService : IAuthenticationService
             return null;
         }
 
-        // Check if event is active
         var now = DateTime.UtcNow;
-        if (team.Event.StartTime > now || team.Event.EndTime < now)
+        if (team.Event.StartTime.AddDays(-7) > now || team.Event.EndTime.AddDays(2) < now)
         {
             return null;
         }
 
-        // Update team name if provided
         if (!string.IsNullOrEmpty(teamName) && string.IsNullOrEmpty(team.Name))
         {
             team.Name = teamName;
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
-        // Create team session
         var sessionToken = Guid.NewGuid().ToString("N");
         var session = new TeamSessionEntity()
         {
             TeamId = team.Id,
             SessionToken = sessionToken,
             CreatedAt = DateTime.UtcNow,
-            ExpiresAt = DateTime.UtcNow.AddHours(12), // 12 hour session
+            ExpiresAt = DateTime.UtcNow.AddHours(12),
             IsActive = true
         };
 
-        _context.TeamSessions.Add(session);
-        await _context.SaveChangesAsync();
+        context.TeamSessions.Add(session);
+        await context.SaveChangesAsync();
 
         return new TeamJoinResponse
         {
@@ -109,18 +95,18 @@ public class AuthenticationService : IAuthenticationService
         try
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSecret);
+            var key = Encoding.ASCII.GetBytes(JwtSecret ?? "");
 
             tokenHandler.ValidateToken(token, new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateIssuer = true,
-                ValidIssuer = _jwtIssuer,
+                ValidIssuer = JwtIssuer,
                 ValidateAudience = false,
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
-            }, out SecurityToken validatedToken);
+            }, out var validatedToken);
 
             return true;
         }
@@ -132,7 +118,7 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<bool> ValidateTeamSessionAsync(string sessionToken)
     {
-        var session = await _context.TeamSessions
+        var session = await context.TeamSessions
             .FirstOrDefaultAsync(s => s.SessionToken == sessionToken && s.IsActive);
 
         return session != null && session.ExpiresAt > DateTime.UtcNow;
@@ -140,7 +126,7 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<TeamEntity?> GetTeamFromSessionAsync(string sessionToken)
     {
-        var session = await _context.TeamSessions
+        var session = await context.TeamSessions
             .Include(s => s.Team)
             .ThenInclude(t => t.Event)
             .FirstOrDefaultAsync(s => s.SessionToken == sessionToken && s.IsActive);
@@ -177,7 +163,7 @@ public class AuthenticationService : IAuthenticationService
     private string GenerateJwtToken(UserEntity user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_jwtSecret);
+        var key = Encoding.ASCII.GetBytes(JwtSecret);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[]
@@ -189,15 +175,10 @@ public class AuthenticationService : IAuthenticationService
             Expires = DateTime.UtcNow.AddHours(8),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256Signature),
-            Issuer = _jwtIssuer
+            Issuer = JwtIssuer
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
-    }
-
-    Task<TeamEntity?> IAuthenticationService.GetTeamFromSessionAsync(string sessionToken)
-    {
-        throw new NotImplementedException();
     }
 }

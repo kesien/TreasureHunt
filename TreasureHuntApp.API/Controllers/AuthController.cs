@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TreasureHuntApp.API.Attributes;
 using TreasureHuntApp.Infrastructure.Services;
-using TreasureHuntApp.Shared.DTOs;
+using TreasureHuntApp.Shared.DTOs.Authentication;
 
 namespace TreasureHuntApp.API.Controllers;
 [ApiController]
@@ -18,7 +18,7 @@ public class AuthController(IAuthenticationService authService) : ControllerBase
 
         var result = await authService.LoginAdminAsync(request.Username, request.Password);
 
-        return result == null ? (ActionResult<AdminLoginResponse>)Unauthorized("Invalid credentials") : (ActionResult<AdminLoginResponse>)Ok(result);
+        return result is null ? Unauthorized("Invalid credentials") : Ok(result);
     }
 
     [HttpPost("team/join")]

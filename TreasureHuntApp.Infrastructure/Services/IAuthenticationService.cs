@@ -1,5 +1,5 @@
 ﻿using TreasureHuntApp.Core.Entities;
-using TreasureHuntApp.Shared.DTOs;
+using TreasureHuntApp.Shared.DTOs.Authentication;
 
 namespace TreasureHuntApp.Infrastructure.Services;
 public interface IAuthenticationService
