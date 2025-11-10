@@ -1,14 +1,25 @@
 import { LocationModel } from './location.model';
 import { TeamModel } from './team.model';
 
+export enum EventType {
+  Easter = 'Easter',
+  Halloween = 'Halloween'
+}
+
+export enum EventStatus {
+  Creaed = 'Creaed',
+  Active = 'Active',
+  Finished = 'Finished'
+}
+
 export interface EventModel {
   id: number;
   name: string;
   description: string;
   startTime: string;
   endTime: string;
-  eventType: 'Easter' | 'Halloween';
-  status: 'Created' | 'Active' | 'Finished';
+  eventType: EventType;
+  status: EventStatus;
   teamTrackingEnabled: boolean;
   locationCount: number;
   teamCount: number;
@@ -21,8 +32,7 @@ export interface CreateEventRequest {
   description: string;
   startTime: Date;
   endTime: Date;
-  eventType: 'Easter' | 'Halloween';
-  teamTrackingEnabled: boolean;
+  eventType: EventType;
 }
 
 export interface EventStats {

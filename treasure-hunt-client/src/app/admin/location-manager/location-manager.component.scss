@@ -1,0 +1,45 @@
+// Import Leaflet CSS
+@import 'leaflet/dist/leaflet.css';
+
+// Custom marker styles
+::ng-deep .custom-marker {
+  background: transparent;
+  border: none;
+}
+
+// Map container
+#location-map {
+  z-index: 1;
+
+  .leaflet-popup-content-wrapper {
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .leaflet-popup-content {
+    margin: 0.75rem;
+    font-size: 0.875rem;
+
+    b {
+      color: #111827;
+      font-weight: 600;
+    }
+  }
+
+  .leaflet-popup-tip {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Ensure dropdown is above map
+.absolute.z-50 {
+  z-index: 1000;
+}
+
+// Line clamp utility (in case Tailwind doesn't have it)
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

@@ -1,0 +1,286 @@
+<div class="card">
+  <!-- Header -->
+  <div class="flex items-center mb-6">
+    <i class="mdi mdi-map-marker-multiple text-gray-500 text-lg mr-2"></i>
+    <h2 class="text-lg font-semibold text-gray-900">Lokációk</h2>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="mb-4">
+    <label for="address-search" class="block text-sm font-medium text-gray-700 mb-2">
+      Cím keresése
+    </label>
+    <div class="relative">
+      <input
+        id="address-search"
+        type="text"
+        [(ngModel)]="searchQuery"
+        (input)="onSearchChange($event)"
+        placeholder="pl.: Széchenyi tér, Szeged"
+        class="input-field pr-10"
+        [ngModelOptions]="{standalone: true}"
+      >
+      @if (isSearching) {
+        <div class="absolute right-3 top-3">
+          <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-treasure-500"></div>
+        </div>
+      }
+
+      <!-- Search Results Dropdown -->
+      @if (showResults && searchResults.length > 0) {
+        <div class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+          @for (result of searchResults; track result.place_id) {
+            <button
+              type="button"
+              (click)="selectSearchResult(result)"
+              class="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors"
+            >
+              <div class="flex items-start">
+                <i class="mdi mdi-map-marker text-treasure-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900">
+                    @if (result.address?.road) {
+                      {{ result.address.road }}
+                      @if (result.address.house_number) {
+                        {{ result.address.house_number }}
+                      }
+                    } @else {
+                      {{ result.display_name.split(',')[0] }}
+                    }
+                  </p>
+                  <p class="text-xs text-gray-500 truncate">
+                    @if (result.address?.city || result.address?.town || result.address?.village) {
+                      {{ result.address.city || result.address.town || result.address.village }}
+                      @if (result.address.postcode) {
+                        , {{ result.address.postcode }}
+                      }
+                    } @else {
+                      {{ result.display_name }}
+                    }
+                  </p>
+                </div>
+              </div>
+            </button>
+          }
+        </div>
+      }
+    </div>
+    <p class="text-xs text-gray-500 mt-1">
+      <i class="mdi mdi-information-outline mr-1"></i>
+      Írj be legalább 3 karaktert a kereséshez
+    </p>
+  </div>
+
+  <!-- Map -->
+  <div class="mb-4">
+    <div id="location-map" class="w-full h-64 md:h-80 rounded-lg overflow-hidden border border-gray-200"></div>
+  </div>
+
+  <!-- Location Form (when adding/editing) -->
+  @if (showLocationForm) {
+    <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-semibold text-gray-900">
+          {{ editingIndex !== null ? 'Lokáció szerkesztése' : 'Új lokáció hozzáadása' }}
+        </h3>
+        <button
+          type="button"
+          (click)="cancelLocationForm()"
+          class="text-gray-400 hover:text-gray-600"
+        >
+          <i class="mdi mdi-close text-xl"></i>
+        </button>
+      </div>
+
+      <form [formGroup]="locationForm" class="space-y-4">
+        <!-- Name -->
+        <div>
+          <label for="loc-name" class="block text-sm font-medium text-gray-700 mb-1">
+            Megnevezés *
+          </label>
+          <input
+            id="loc-name"
+            type="text"
+            formControlName="name"
+            placeholder="pl.: Dóm tér"
+            class="input-field"
+            [class.border-red-500]="locationForm.get('name')?.invalid && locationForm.get('name')?.touched"
+          >
+          @if (locationForm.get('name')?.invalid && locationForm.get('name')?.touched) {
+            <p class="text-red-500 text-xs mt-1">
+              @if (locationForm.get('name')?.errors?.['required']) {
+                A név megadása kötelező
+              }
+              @if (locationForm.get('name')?.errors?.['minlength']) {
+                A név legalább 2 karakter hosszú
+              }
+            </p>
+          }
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label for="loc-description" class="block text-sm font-medium text-gray-700 mb-1">
+            Leírás
+          </label>
+          <textarea
+            id="loc-description"
+            formControlName="description"
+            rows="2"
+            placeholder="Rövid leírás a lokációról"
+            class="input-field resize-none"
+            [class.border-red-500]="locationForm.get('description')?.invalid && locationForm.get('description')?.touched"
+          ></textarea>
+        </div>
+
+        <!-- Address (read-only) -->
+        <div>
+          <label for="loc-address" class="block text-sm font-medium text-gray-700 mb-1">
+            Cím *
+          </label>
+          <input
+            id="loc-address"
+            type="text"
+            formControlName="address"
+            readonly
+            class="input-field bg-gray-100 cursor-not-allowed"
+          >
+        </div>
+
+        <!-- Coordinates (read-only) -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="loc-lat" class="block text-sm font-medium text-gray-700 mb-1">
+              Szélesség
+            </label>
+            <input
+              id="loc-lat"
+              type="text"
+              [value]="locationForm.get('latitude')?.value | number:'1.6-6'"
+              readonly
+              class="input-field bg-gray-100 cursor-not-allowed text-sm"
+            >
+          </div>
+          <div>
+            <label for="loc-lng" class="block text-sm font-medium text-gray-700 mb-1">
+              Hosszúság
+            </label>
+            <input
+              id="loc-lng"
+              type="text"
+              [value]="locationForm.get('longitude')?.value | number:'1.6-6'"
+              readonly
+              class="input-field bg-gray-100 cursor-not-allowed text-sm"
+            >
+          </div>
+        </div>
+
+        <!-- Is Required -->
+        <div class="flex items-center">
+          <input
+            id="loc-required"
+            type="checkbox"
+            formControlName="isRequired"
+            class="w-4 h-4 text-treasure-600 bg-gray-100 border-gray-300 rounded focus:ring-treasure-500"
+          >
+          <label for="loc-required" class="ml-2 text-sm text-gray-700">
+            Kötelező látogatni
+          </label>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end space-x-2 pt-2">
+          <button
+            type="button"
+            (click)="cancelLocationForm()"
+            class="btn-secondary text-sm"
+          >
+            Mégse
+          </button>
+          <button
+            type="button"
+            (click)="saveLocation()"
+            [disabled]="locationForm.invalid"
+            class="btn-primary text-sm"
+          >
+            <i class="mdi mdi-check mr-1"></i>
+            {{ editingIndex !== null ? 'Mentés' : 'Hozzáadás' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Location List -->
+  @if (locations.length > 0) {
+    <div class="space-y-2">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-medium text-gray-700">
+          Hozzáadott lokációk ({{ locations.length }})
+        </h3>
+      </div>
+
+      <div class="space-y-2">
+        @for (location of locations; track location.id; let i = $index) {
+          <div class="flex items-start p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+            <!-- Number Badge -->
+            <div class="flex-shrink-0 w-8 h-8 bg-treasure-600 text-white rounded-full flex items-center justify-center font-bold text-sm mr-3">
+              {{ i + 1 }}
+            </div>
+
+            <!-- Location Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between">
+                <div class="flex-1 min-w-0 mr-2">
+                  <p class="text-sm font-medium text-gray-900 truncate">
+                    {{ location.name }}
+                    @if (location.isRequired) {
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-treasure-100 text-treasure-800 ml-2">
+                        Kötelező
+                      </span>
+                    }
+                  </p>
+                  <p class="text-xs text-gray-500 truncate mt-0.5">
+                    <i class="mdi mdi-map-marker text-xs"></i>
+                    {{ location.address }}
+                  </p>
+                  @if (location.description) {
+                    <p class="text-xs text-gray-600 mt-1 line-clamp-2">
+                      {{ location.description }}
+                    </p>
+                  }
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center space-x-1 flex-shrink-0">
+                  <button
+                    type="button"
+                    (click)="editLocation(i)"
+                    class="p-1.5 text-gray-400 hover:text-treasure-600 hover:bg-treasure-50 rounded transition-colors"
+                    title="Szerkesztés"
+                  >
+                    <i class="mdi mdi-pencil text-lg"></i>
+                  </button>
+                  <button
+                    type="button"
+                    (click)="deleteLocation(i)"
+                    class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                    title="Törlés"
+                  >
+                    <i class="mdi mdi-delete text-lg"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="text-center py-8 px-4 bg-gray-50 rounded-lg border border-gray-200 border-dashed">
+      <i class="mdi mdi-map-marker-off text-4xl text-gray-300 mb-2"></i>
+      <p class="text-sm text-gray-600">Még nincsenek hozzáadott lokációk</p>
+      <p class="text-xs text-gray-500 mt-1">Használd a fenti keresőt új lokáció hozzáadásához</p>
+    </div>
+  }
+</div>

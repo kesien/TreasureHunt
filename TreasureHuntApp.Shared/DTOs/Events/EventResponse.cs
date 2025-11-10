@@ -11,7 +11,6 @@ public class EventResponse
     public DateTime EndTime { get; set; }
     public EventType EventType { get; set; }
     public EventStatus Status { get; set; }
-    public bool TeamTrackingEnabled { get; set; }
     public DateTime CreatedAt { get; set; }
     public int LocationCount { get; set; }
     public int TeamCount { get; set; }

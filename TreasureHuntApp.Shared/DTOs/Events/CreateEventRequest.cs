@@ -21,7 +21,5 @@ public class CreateEventRequest
     [Required]
     public EventType EventType { get; set; }
 
-    public bool TeamTrackingEnabled { get; set; } = true;
-
     public List<CreateLocationRequest> Locations { get; set; } = new();
 }

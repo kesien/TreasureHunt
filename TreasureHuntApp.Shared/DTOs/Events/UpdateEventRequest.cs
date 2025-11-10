@@ -21,5 +21,4 @@ public class UpdateEventRequest
     [Required]
     public EventType EventType { get; set; }
 
-    public bool TeamTrackingEnabled { get; set; }
 }

@@ -18,7 +18,6 @@ public class EventService(TreasureHuntDbContext context, ITeamCodeGenerator team
             StartTime = request.StartTime,
             EndTime = request.EndTime,
             Type = request.EventType,
-            AllowTeamTracking = request.TeamTrackingEnabled,
             Status = request.StartTime > DateTime.UtcNow ? EventStatus.Created : EventStatus.Active,
             CreatedAt = DateTime.UtcNow
         };
@@ -74,7 +73,6 @@ public class EventService(TreasureHuntDbContext context, ITeamCodeGenerator team
             EndTime = eventEntity.EndTime,
             EventType = eventEntity.Type,
             Status = eventEntity.Status,
-            TeamTrackingEnabled = eventEntity.AllowTeamTracking,
             CreatedAt = eventEntity.CreatedAt,
             LocationCount = eventEntity.Locations.Count,
             TeamCount = eventEntity.Teams.Count,
@@ -115,7 +113,6 @@ public class EventService(TreasureHuntDbContext context, ITeamCodeGenerator team
         eventEntity.StartTime = request.StartTime;
         eventEntity.EndTime = request.EndTime;
         eventEntity.Type = request.EventType;
-        eventEntity.AllowTeamTracking = request.TeamTrackingEnabled;
 
         // Update status based on new times
         eventEntity.Status = request.StartTime > DateTime.UtcNow ? EventStatus.Created : EventStatus.Active;
@@ -363,7 +360,6 @@ public class EventService(TreasureHuntDbContext context, ITeamCodeGenerator team
             EndTime = eventEntity.EndTime,
             EventType = eventEntity.Type,
             Status = eventEntity.Status,
-            TeamTrackingEnabled = eventEntity.AllowTeamTracking,
             CreatedAt = eventEntity.CreatedAt,
             LocationCount = eventEntity.Locations?.Count ?? 0,
             TeamCount = eventEntity.Teams?.Count ?? 0
